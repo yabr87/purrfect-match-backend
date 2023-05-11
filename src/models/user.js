@@ -14,7 +14,10 @@ const PHONE_PATTERN_MESSAGE =
 
 const usersSchema = new Schema(
   {
-    name: String,
+    name: {
+      type: String,
+      default: 'User',
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -30,16 +33,16 @@ const usersSchema = new Schema(
     },
     birthday: {
       type: String, //Date
+      default: '',
     },
-    sity: String,
-    phone: String,
-    favorites: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'notice',
-        select: false,
-      },
-    ],
+    city: {
+      type: String,
+      default: '',
+    },
+    phone: {
+      type: String,
+      default: '',
+    },
     token: {
       type: String,
       default: '',
