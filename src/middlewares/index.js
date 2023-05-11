@@ -1,5 +1,11 @@
-const test = require('./test');
+const validateBody = require('./validateBody');
+const validateQuery = require('./validateQuery');
+const upload = require('./upload');
+const authenticate = require('./authenticate');
 
 module.exports = {
-  test,
+  validateBody,
+  validateQuery,
+  upload,
+  authenticate,
 };
