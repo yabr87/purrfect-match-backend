@@ -1,0 +1,943 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "GoIT Final team project",
+    "description": "GoIT Final team project",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Yaroslav Bernatovych",
+      "url": "https://github.com/yabr87"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3001"
+    }
+  ],
+  "paths": {
+    "/api/users/register": {
+      "post": {
+        "operationId": "registerUser",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register new user",
+        "description": "Register new user",
+        "requestBody": {
+          "description": "Credentials required for registration and login",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "maxLength": 16,
+                    "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "example": {
+                  "email": "user@mail.com",
+                  "password": "user7A"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "New user successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "format": "jwt",
+                      "description": "Authorization token",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "description": "Registered user email"
+                        },
+                        "avatarUrl": {
+                          "type": "string",
+                          "format": "url",
+                          "description": "User's avatar url"
+                        }
+                      },
+                      "example": {
+                        "email": "user@mail.com",
+                        "avatarUrl": "http://cloud-storage.com/avatar.jpg"
+                      }
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Validation error message"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Current email is in use. Try another one.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Email in use"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "operationId": "loginUser",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login registered user",
+        "requestBody": {
+          "description": "Credentials required for registration and login",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "maxLength": 16,
+                    "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "example": {
+                  "email": "user@mail.com",
+                  "password": "user7A"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "format": "jwt",
+                      "description": "Authorization token",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "description": "Registered user email"
+                        },
+                        "avatarUrl": {
+                          "type": "string",
+                          "format": "url",
+                          "description": "User's avatar url"
+                        }
+                      },
+                      "example": {
+                        "email": "user@mail.com",
+                        "avatarUrl": "http://cloud-storage.com/avatar.jpg"
+                      }
+                    }
+                  },
+                  "required": [
+                    "token",
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Validation error message"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Email or password is wrong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/logout": {
+      "post": {
+        "operationId": "logoutUser",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log out current user",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User successfully logged out"
+          },
+          "401": {
+            "description": "User isn't authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/current": {
+      "get": {
+        "operationId": "getUserInfo",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get current user info",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information successfully retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "description": "MongoDB user ID",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "User name",
+                      "example": "John Smith"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "User email",
+                      "example": "john.smith@mail.com"
+                    },
+                    "birthday": {
+                      "type": "string",
+                      "format": "date",
+                      "description": "Valid user birthday",
+                      "example": "24.05.1976"
+                    },
+                    "city": {
+                      "type": "string",
+                      "description": "User location",
+                      "example": "Kyiv"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "description": "User phone number",
+                      "example": "+380671234567"
+                    },
+                    "avatar": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "User avatar image file. Only for multipart/form-data",
+                      "writeOnly": true
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "User's avatar URL",
+                      "readOnly": true,
+                      "example": "http://cloud-storage.com/avatar.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User isn't authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateUserInfo",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update current user info",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "MongoDB user ID",
+                    "readOnly": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "User name",
+                    "example": "John Smith"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User email",
+                    "example": "john.smith@mail.com"
+                  },
+                  "birthday": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Valid user birthday",
+                    "example": "24.05.1976"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "User location",
+                    "example": "Kyiv"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "User phone number",
+                    "example": "+380671234567"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "User avatar image file. Only for multipart/form-data",
+                    "writeOnly": true
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "User's avatar URL",
+                    "readOnly": true,
+                    "example": "http://cloud-storage.com/avatar.jpg"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string",
+                    "description": "MongoDB user ID",
+                    "readOnly": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "User name",
+                    "example": "John Smith"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User email",
+                    "example": "john.smith@mail.com"
+                  },
+                  "birthday": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Valid user birthday",
+                    "example": "24.05.1976"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "User location",
+                    "example": "Kyiv"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "User phone number",
+                    "example": "+380671234567"
+                  },
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "User avatar image file. Only for multipart/form-data",
+                    "writeOnly": true
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "User's avatar URL",
+                    "readOnly": true,
+                    "example": "http://cloud-storage.com/avatar.jpg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Information successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Registered user email"
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "url",
+                      "description": "User's avatar url"
+                    }
+                  },
+                  "example": {
+                    "email": "user@mail.com",
+                    "avatarUrl": "http://cloud-storage.com/avatar.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Validation error message"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User isn't authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/avatars": {
+      "patch": {
+        "operationId": "updateUserAvatar",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update current user avatar",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "User avatar image file."
+                  }
+                },
+                "required": [
+                  "avatar"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avatar successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "User's avatar URL",
+                      "example": "http://cloud-storage.com/avatar.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Validation error message"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User isn't authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                },
+                "example": {
+                  "message": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices/by-category": {
+      "get": {
+        "operationId": "getNoticesByCategory",
+        "description": "Get notices by category",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Get notices",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/notices/by-category/{:noticeId}": {
+      "get": {
+        "operationId": "getNoticeById",
+        "description": "Get notice by ID",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Get notice by Id",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/notices/favorites": "",
+    "/notices/own": ""
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Notices"
+    },
+    {
+      "name": "Pets"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "MongoDB user ID",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "User name",
+            "example": "John Smith"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email",
+            "example": "john.smith@mail.com"
+          },
+          "birthday": {
+            "type": "string",
+            "format": "date",
+            "description": "Valid user birthday",
+            "example": "24.05.1976"
+          },
+          "city": {
+            "type": "string",
+            "description": "User location",
+            "example": "Kyiv"
+          },
+          "phone": {
+            "type": "string",
+            "description": "User phone number",
+            "example": "+380671234567"
+          },
+          "avatar": {
+            "type": "string",
+            "format": "binary",
+            "description": "User avatar image file. Only for multipart/form-data",
+            "writeOnly": true
+          },
+          "avatarUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "User's avatar URL",
+            "readOnly": true,
+            "example": "http://cloud-storage.com/avatar.jpg"
+          }
+        }
+      },
+      "UserInfo": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Registered user email"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "format": "url",
+            "description": "User's avatar url"
+          }
+        },
+        "example": {
+          "email": "user@mail.com",
+          "avatarUrl": "http://cloud-storage.com/avatar.jpg"
+        }
+      }
+    },
+    "requestBodies": {
+      "Credentials": {
+        "description": "Credentials required for registration and login",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "User email"
+                },
+                "password": {
+                  "type": "string",
+                  "format": "password",
+                  "minLength": 6,
+                  "maxLength": 16,
+                  "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ],
+              "example": {
+                "email": "user@mail.com",
+                "password": "user7A"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Error message"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            },
+            "example": {
+              "message": "Validation error message"
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "User isn't authorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Error message"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            },
+            "example": {
+              "message": "Unauthorized"
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "The specified resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Error message"
+                }
+              },
+              "required": [
+                "message"
+              ]
+            },
+            "example": {
+              "message": "Not found"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
