@@ -64,6 +64,7 @@ const register = Joi.object({
     .min(PASSWORD_MIN_LENGTH)
     .max(PASSWORD_MAX_LENGTH)
     .messages({ 'any.required': 'missing required "password" field' }),
+  confirmPassword: Joi.string().valid(Joi.ref('password')),
 });
 
 const login = Joi.object({
