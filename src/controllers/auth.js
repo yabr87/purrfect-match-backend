@@ -33,7 +33,7 @@ const register = async (req, res) => {
   user = await refreshUserToken(user._id);
   const { token } = user;
 
-  res.status(201).json({ token, user: selectUserData(user) });
+  res.status(201).json({ token, user: selectUserInfo(user) });
 };
 
 const login = async (req, res) => {
@@ -53,7 +53,7 @@ const login = async (req, res) => {
   user = await refreshUserToken(user._id);
   const { token } = user;
 
-  res.json({ token, user: selectUserData(user) });
+  res.json({ token, user: selectUserInfo(user) });
 };
 
 const logout = async (req, res) => {
@@ -62,7 +62,7 @@ const logout = async (req, res) => {
 };
 
 const getCurrent = async (req, res) => {
-  res.json(selectUserData(req.user));
+  res.json(selectDetailedUserInfo(req.user));
 };
 
 const updateCurrent = async (req, res) => {
@@ -85,7 +85,7 @@ const updateCurrent = async (req, res) => {
   }
 
   const user = await User.findByIdAndUpdate(userId, body, { new: true });
-  res.json(selectUserData(user));
+  res.json(selectDetailedUserInfo(user));
 };
 
 const updateAvatar = async (req, res) => {
@@ -133,9 +133,19 @@ const storeAvatar = async (userId, file) => {
   return avatarUrl;
 };
 
-const selectUserData = ({ email, avatarUrl }) => ({
-  email,
-  avatarUrl,
+const selectUserInfo = user => ({
+  name: user.name,
+  email: user.email,
+  avatarUrl: user.avatarUrl,
+});
+
+const selectDetailedUserInfo = user => ({
+  name: user.name,
+  email: user.email,
+  birthday: user.birthday,
+  city: user.city,
+  phone: user.phone,
+  avatarUrl: user.avatarUrl,
 });
 
 const setUserToken = async (userId, token) =>
