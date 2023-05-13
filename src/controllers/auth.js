@@ -74,14 +74,14 @@ const updateCurrent = async (req, res) => {
   }
 
   if (body.email) {
-    const existedUser = await User.fileOne({ email: email });
+    const existedUser = await User.findOne({ email: body.email });
     if (existedUser) {
       throw new HttpError(409, 'Email in use');
     }
   }
 
   if (file) {
-    body.avatarUrl = await storeAvatar(userId, file);
+    body.avatarUrl = file.path; //await storeAvatar(userId, file);
   }
 
   const user = await User.findByIdAndUpdate(userId, body, { new: true });
@@ -93,7 +93,7 @@ const updateAvatar = async (req, res) => {
   if (!req.file) {
     throw new HttpError(400, 'Avatar is required');
   }
-  const newAvatarUrl = await storeAvatar(userId, req.file);
+  const newAvatarUrl = req.file.path; //await storeAvatar(userId, req.file);
   const { avatarUrl } = await User.findByIdAndUpdate(
     userId,
     { avatarUrl: newAvatarUrl },

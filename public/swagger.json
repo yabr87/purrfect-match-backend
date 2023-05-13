@@ -11,6 +11,9 @@
   },
   "servers": [
     {
+      "url": "https://purrfect-match.onrender.com"
+    },
+    {
       "url": "http://127.0.0.1:3001"
     }
   ],
@@ -24,37 +27,7 @@
         "summary": "Register new user",
         "description": "Register new user",
         "requestBody": {
-          "description": "Credentials required for registration and login",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "User email"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "minLength": 6,
-                    "maxLength": 16,
-                    "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
-                  }
-                },
-                "required": [
-                  "email",
-                  "password"
-                ],
-                "example": {
-                  "email": "user@mail.com",
-                  "password": "user7A"
-                }
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/Credentials"
         },
         "responses": {
           "201": {
@@ -71,23 +44,7 @@
                       "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
                     },
                     "user": {
-                      "type": "object",
-                      "properties": {
-                        "email": {
-                          "type": "string",
-                          "format": "email",
-                          "description": "Registered user email"
-                        },
-                        "avatarUrl": {
-                          "type": "string",
-                          "format": "url",
-                          "description": "User's avatar url"
-                        }
-                      },
-                      "example": {
-                        "email": "user@mail.com",
-                        "avatarUrl": "http://cloud-storage.com/avatar.jpg"
-                      }
+                      "$ref": "#/components/schemas/UserInfo"
                     }
                   },
                   "required": [
@@ -99,42 +56,14 @@
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Validation error message"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
           },
           "409": {
             "description": "Current email is in use. Try another one.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
+                  "$ref": "#/components/schemas/Error"
                 },
                 "example": {
                   "message": "Email in use"
@@ -153,37 +82,7 @@
         ],
         "summary": "Login registered user",
         "requestBody": {
-          "description": "Credentials required for registration and login",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "User email"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "minLength": 6,
-                    "maxLength": 16,
-                    "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
-                  }
-                },
-                "required": [
-                  "email",
-                  "password"
-                ],
-                "example": {
-                  "email": "user@mail.com",
-                  "password": "user7A"
-                }
-              }
-            }
-          }
+          "$ref": "#/components/requestBodies/Credentials"
         },
         "responses": {
           "200": {
@@ -200,23 +99,7 @@
                       "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
                     },
                     "user": {
-                      "type": "object",
-                      "properties": {
-                        "email": {
-                          "type": "string",
-                          "format": "email",
-                          "description": "Registered user email"
-                        },
-                        "avatarUrl": {
-                          "type": "string",
-                          "format": "url",
-                          "description": "User's avatar url"
-                        }
-                      },
-                      "example": {
-                        "email": "user@mail.com",
-                        "avatarUrl": "http://cloud-storage.com/avatar.jpg"
-                      }
+                      "$ref": "#/components/schemas/UserInfo"
                     }
                   },
                   "required": [
@@ -228,42 +111,14 @@
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Validation error message"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
           },
           "401": {
             "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
+                  "$ref": "#/components/schemas/Error"
                 },
                 "example": {
                   "message": "Email or password is wrong"
@@ -291,26 +146,7 @@
             "description": "User successfully logged out"
           },
           "401": {
-            "description": "User isn't authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Unauthorized"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -333,79 +169,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "_id": {
-                      "type": "string",
-                      "description": "MongoDB user ID",
-                      "readOnly": true
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "User name",
-                      "example": "John Smith"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "description": "User email",
-                      "example": "john.smith@mail.com"
-                    },
-                    "birthday": {
-                      "type": "string",
-                      "format": "date",
-                      "description": "Valid user birthday",
-                      "example": "24.05.1976"
-                    },
-                    "city": {
-                      "type": "string",
-                      "description": "User location",
-                      "example": "Kyiv"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "description": "User phone number",
-                      "example": "+380671234567"
-                    },
-                    "avatar": {
-                      "type": "string",
-                      "format": "binary",
-                      "description": "User avatar image file. Only for multipart/form-data",
-                      "writeOnly": true
-                    },
-                    "avatarUrl": {
-                      "type": "string",
-                      "format": "uri",
-                      "description": "User's avatar URL",
-                      "readOnly": true,
-                      "example": "http://cloud-storage.com/avatar.jpg"
-                    }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
           "401": {
-            "description": "User isn't authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Unauthorized"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       },
@@ -425,106 +195,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "_id": {
-                    "type": "string",
-                    "description": "MongoDB user ID",
-                    "readOnly": true
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "User name",
-                    "example": "John Smith"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "User email",
-                    "example": "john.smith@mail.com"
-                  },
-                  "birthday": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "Valid user birthday",
-                    "example": "24.05.1976"
-                  },
-                  "city": {
-                    "type": "string",
-                    "description": "User location",
-                    "example": "Kyiv"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "description": "User phone number",
-                    "example": "+380671234567"
-                  },
-                  "avatar": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "User avatar image file. Only for multipart/form-data",
-                    "writeOnly": true
-                  },
-                  "avatarUrl": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "User's avatar URL",
-                    "readOnly": true,
-                    "example": "http://cloud-storage.com/avatar.jpg"
-                  }
-                }
+                "$ref": "#/components/schemas/User"
               }
             },
             "multipart/form-data": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "_id": {
-                    "type": "string",
-                    "description": "MongoDB user ID",
-                    "readOnly": true
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "User name",
-                    "example": "John Smith"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "description": "User email",
-                    "example": "john.smith@mail.com"
-                  },
-                  "birthday": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "Valid user birthday",
-                    "example": "24.05.1976"
-                  },
-                  "city": {
-                    "type": "string",
-                    "description": "User location",
-                    "example": "Kyiv"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "description": "User phone number",
-                    "example": "+380671234567"
-                  },
-                  "avatar": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "User avatar image file. Only for multipart/form-data",
-                    "writeOnly": true
-                  },
-                  "avatarUrl": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "User's avatar URL",
-                    "readOnly": true,
-                    "example": "http://cloud-storage.com/avatar.jpg"
-                  }
-                }
+                "$ref": "#/components/schemas/UserWithAvatar"
               }
             }
           }
@@ -535,81 +211,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "description": "Registered user email"
-                    },
-                    "avatarUrl": {
-                      "type": "string",
-                      "format": "url",
-                      "description": "User's avatar url"
-                    }
-                  },
-                  "example": {
-                    "email": "user@mail.com",
-                    "avatarUrl": "http://cloud-storage.com/avatar.jpg"
-                  }
+                  "$ref": "#/components/schemas/UserInfo"
                 }
               }
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Validation error message"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
           },
           "401": {
-            "description": "User isn't authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Unauthorized"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/api/users/avatars": {
+    "/api/users/current/avatar": {
       "patch": {
         "operationId": "updateUserAvatar",
         "tags": [
           "Auth"
         ],
         "summary": "Update current user avatar",
+        "description": "Update current user avatar",
         "security": [
           {
             "BearerAuth": []
@@ -655,84 +278,14 @@
             }
           },
           "400": {
-            "description": "Validation error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Validation error message"
-                }
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
           },
           "401": {
-            "description": "User isn't authorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "description": "Error message"
-                    }
-                  },
-                  "required": [
-                    "message"
-                  ]
-                },
-                "example": {
-                  "message": "Unauthorized"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
-    },
-    "/api/notices/by-category": {
-      "get": {
-        "operationId": "getNoticesByCategory",
-        "description": "Get notices by category",
-        "tags": [
-          "Notices"
-        ],
-        "summary": "Get notices",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/notices/by-category/{:noticeId}": {
-      "get": {
-        "operationId": "getNoticeById",
-        "description": "Get notice by ID",
-        "tags": [
-          "Notices"
-        ],
-        "summary": "Get notice by Id",
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/notices/favorites": "",
-    "/notices/own": ""
+    }
   },
   "tags": [
     {
@@ -780,7 +333,7 @@
           },
           "birthday": {
             "type": "string",
-            "format": "date",
+            "pattern": "\\d{2}.\\d{2}.\\d{4}",
             "description": "Valid user birthday",
             "example": "24.05.1976"
           },
@@ -794,12 +347,6 @@
             "description": "User phone number",
             "example": "+380671234567"
           },
-          "avatar": {
-            "type": "string",
-            "format": "binary",
-            "description": "User avatar image file. Only for multipart/form-data",
-            "writeOnly": true
-          },
           "avatarUrl": {
             "type": "string",
             "format": "uri",
@@ -808,6 +355,24 @@
             "example": "http://cloud-storage.com/avatar.jpg"
           }
         }
+      },
+      "UserWithAvatar": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "avatar": {
+                "type": "string",
+                "format": "binary",
+                "description": "User avatar image file. Only for multipart/form-data",
+                "writeOnly": true
+              }
+            }
+          }
+        ]
       },
       "UserInfo": {
         "type": "object",
@@ -870,16 +435,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Error message"
-                }
-              },
-              "required": [
-                "message"
-              ]
+              "$ref": "#/components/schemas/Error"
             },
             "example": {
               "message": "Validation error message"
@@ -892,16 +448,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Error message"
-                }
-              },
-              "required": [
-                "message"
-              ]
+              "$ref": "#/components/schemas/Error"
             },
             "example": {
               "message": "Unauthorized"
@@ -914,16 +461,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Error message"
-                }
-              },
-              "required": [
-                "message"
-              ]
+              "$ref": "#/components/schemas/Error"
             },
             "example": {
               "message": "Not found"
