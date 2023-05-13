@@ -2,7 +2,12 @@ const { Router } = require('express');
 
 const ctrl = require('../../controllers/auth');
 
-const { authenticate, validateBody, upload } = require('../../middlewares');
+const {
+  authenticate,
+  validateBody,
+  upload,
+  uploadCloud,
+} = require('../../middlewares');
 
 const { schemas } = require('../../models/user');
 
@@ -19,15 +24,17 @@ router.get('/current', authenticate, ctrl.getCurrent);
 router.patch(
   '/current',
   authenticate,
-  upload.single('avatar'),
+  // upload.single('avatar'),
+  uploadCloud.single('avatar'),
   validateBody(schemas.update),
   ctrl.updateCurrent
 );
 
 router.patch(
-  '/avatars',
+  '/current/avatar',
   authenticate,
-  upload.single('avatar'),
+  // upload.single('avatar'),
+  uploadCloud.single('avatar'),
   ctrl.updateAvatar
 );
 
