@@ -3,7 +3,7 @@
   "info": {
     "title": "GoIT Final team project",
     "description": "GoIT Final team project",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "contact": {
       "name": "Yaroslav Bernatovych",
       "url": "https://github.com/yabr87"
@@ -285,6 +285,290 @@
           }
         }
       }
+    },
+    "/api/notices": {
+      "get": {
+        "operationId": "getNotices",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Get notices.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "sell",
+                "lost-found",
+                "for-free"
+              ]
+            }
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "favorite",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "own",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "operationId": "addNotice",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Add new notice",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Notice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/api/notices/{noticeId}": {
+      "get": {
+        "operationId": "getNoticeById",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Get notice by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeNoticeById",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Remove notice by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/api/notices/{noticeId}/favorite": {
+      "post": {
+        "operationId": "addToFavorites",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Add the notice to favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeFromFavorites",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Remove the notice from favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateFavorite",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Add or removes the notice from favorites",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "favorite": {
+                    "type": "boolean",
+                    "description": "If the favorite is true, add to favorites, otherwise remove from favorites"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
     }
   },
   "tags": [
@@ -391,6 +675,77 @@
         "example": {
           "email": "user@mail.com",
           "avatarUrl": "http://cloud-storage.com/avatar.jpg"
+        }
+      },
+      "Notice": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Id generated by MongoDB",
+            "readOnly": true
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "sell",
+              "lost-found",
+              "for-free"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "Notice title"
+          },
+          "name": {
+            "type": "string",
+            "description": "Pet name"
+          },
+          "birthday": {
+            "type": "string",
+            "pattern": "\\d{2}.\\d{2}.\\d{4}",
+            "description": "Pet's birthday"
+          },
+          "breed": {
+            "type": "string",
+            "description": "Pet breed"
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ],
+            "description": "Pet sex"
+          },
+          "location": {
+            "type": "string",
+            "description": "The city where the pet is locatate"
+          },
+          "price": {
+            "type": "number",
+            "description": "Pet price"
+          },
+          "comments": {
+            "type": "string",
+            "description": "Any comment you want"
+          },
+          "photo": {
+            "type": "string",
+            "format": "binary",
+            "description": "Pet photo"
+          }
+        },
+        "example": {
+          "category": "sell",
+          "title": "Cute dog looking for a home",
+          "name": "Rich",
+          "birthday": "21.09.2020",
+          "breed": "Pomeranian",
+          "sex": "male",
+          "location": "Lviv",
+          "price": 120,
+          "comments": "Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too!"
         }
       }
     },

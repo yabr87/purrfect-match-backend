@@ -3,6 +3,7 @@ const logger = require('morgan');
 const cors = require('cors');
 
 const authRouter = require('./routes/api/auth');
+const noticeRouter = require('./routes/api/notice');
 
 const { HttpError } = require('./helpers');
 
@@ -20,6 +21,7 @@ app.use(express.static('public'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/users', authRouter);
+app.use('/api/notices', noticeRouter);
 
 app.use((req, res, next) => {
   next(new HttpError(404));
