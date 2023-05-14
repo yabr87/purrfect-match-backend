@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const authRouter = require('./routes/api/auth');
 const noticeRouter = require('./routes/api/notice');
+const petRouter = require('./routes/api/pet');
 
 const { HttpError } = require('./helpers');
 
@@ -22,6 +23,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/users', authRouter);
 app.use('/api/notices', noticeRouter);
+app.use('/api/pets', petRouter);
 
 app.use((req, res, next) => {
   next(new HttpError(404));
