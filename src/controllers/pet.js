@@ -10,6 +10,8 @@ const get = async (req, res) => {
 
   const { page = 1, limit = 20 } = query;
   const skip = (page - 1) * limit;
+
+  const totalResults = await Pet.find({ owner: userId }).count();
   const pets = await Pet.find({ owner: userId }, null, {
     skip,
     limit,
@@ -18,7 +20,12 @@ const get = async (req, res) => {
     },
   }).lean();
 
-  res.json(pets);
+  res.json({
+    totalResults,
+    page,
+    totalPages: Math.ceil(totalResults / limit),
+    results: pets,
+  });
 };
 
 const add = async (req, res) => {

@@ -6,7 +6,7 @@ const { User } = require('../models/user');
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
-  const { page = 1, limit = 20, favorite, own, title, ...filter } = query;
+  const { page = 1, limit = 12, favorite, own, title, ...filter } = query;
   const skip = (page - 1) * limit;
 
   if (title) {
@@ -28,7 +28,8 @@ const get = async (req, res) => {
       ? { $all: [userId] }
       : { $not: { $all: [userId] } };
   }
-  const notices = await Notice.find(filter, undefined, {
+  const totalResults = await Notice.find(filter).count();
+  const notices = await Notice.find(filter, null, {
     skip,
     limit,
     sort: {
@@ -40,7 +41,12 @@ const get = async (req, res) => {
     formatNotice(notice, userId);
   });
 
-  res.json(notices);
+  res.json({
+    totalResults,
+    page,
+    totalPages: Math.ceil(totalResults / limit),
+    results: notices,
+  });
 };
 
 const getById = async (req, res) => {
@@ -137,6 +143,9 @@ const formatNotice = (notice, userId) => {
       notice.favorites?.find(id => id.toString() === userIdStr)
     );
     notice.own = notice.owner.toString() === userIdStr;
+  } else {
+    notice.favorite = false;
+    notice.own = false;
   }
   delete notice.favorites;
   delete notice.owner;
