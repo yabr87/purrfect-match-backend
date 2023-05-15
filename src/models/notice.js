@@ -75,7 +75,7 @@ const Notice = model('notices', noticeSchema);
 
 // Validation schemas:
 
-const notice = Joi.object({
+const addParams = Joi.object({
   category: Joi.string()
     .required()
     .valid(...NOTICE_CATEGORIES_LIST),
@@ -96,7 +96,7 @@ const notice = Joi.object({
   comments: Joi.string().min(8).max(120),
 });
 
-const getQueryParams = Joi.object({
+const getParams = Joi.object({
   category: Joi.string().valid(...NOTICE_CATEGORIES_LIST),
   title: Joi.string(),
   sex: Joi.string().valid(...SEX_LIST),
@@ -107,14 +107,14 @@ const getQueryParams = Joi.object({
   limit: Joi.number().integer().positive(),
 });
 
-const updateFavorite = Joi.object({
+const updateFavoriteParams = Joi.object({
   favorite: Joi.boolean().required(),
 });
 
 const schemas = {
-  notice,
-  getQueryParams,
-  updateFavorite,
+  addParams,
+  getParams,
+  updateFavoriteParams,
 };
 
 module.exports = {

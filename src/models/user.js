@@ -55,7 +55,7 @@ const User = model('users', usersSchema);
 
 // Validation schemas:
 
-const register = Joi.object({
+const registerParams = Joi.object({
   email: Joi.string()
     .required()
     .trim()
@@ -70,7 +70,7 @@ const register = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref('password')).strip(),
 });
 
-const login = Joi.object({
+const loginParams = Joi.object({
   email: Joi.string()
     .required()
     .trim()
@@ -82,7 +82,7 @@ const login = Joi.object({
     .messages({ 'any.required': 'missing required "password" field' }),
 });
 
-const update = Joi.object({
+const updateParams = Joi.object({
   name: Joi.string().trim().max(NAME_LENGTH),
   email: Joi.string().trim().lowercase().email().trim(),
   birthday: Joi.string()
@@ -102,9 +102,9 @@ const update = Joi.object({
 // .messages({ 'object.min': 'missing fields' });
 
 const schemas = {
-  register,
-  login,
-  update,
+  registerParams,
+  loginParams,
+  updateParams,
 };
 
 module.exports = {

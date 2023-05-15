@@ -41,7 +41,7 @@ const Pet = model('pet', petSchema);
 
 // Validation schemas:
 
-const pet = Joi.object({
+const addParams = Joi.object({
   name: Joi.string().required().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH),
   birthday: Joi.string()
     .required()
@@ -50,14 +50,14 @@ const pet = Joi.object({
   comments: Joi.string().min(8).max(120),
 });
 
-const getQueryParams = Joi.object({
+const getParams = Joi.object({
   page: Joi.number().integer().positive(),
   limit: Joi.number().integer().positive(),
 });
 
 const schemas = {
-  pet,
-  getQueryParams,
+  addParams,
+  getParams,
 };
 
 module.exports = {

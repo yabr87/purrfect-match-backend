@@ -1,16 +1,16 @@
-const path = require('path');
-const fs = require('fs/promises');
+// const path = require('path');
+// const fs = require('fs/promises');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const Jimp = require('jimp');
+// const Jimp = require('jimp');
 
 const { ctrlWrapper, HttpError } = require('../helpers');
 
 const { User } = require('../models/user');
 
 const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
-const AVATAR_SIZE = 250;
-const avatarsDir = path.resolve('public', 'avatars');
+// const AVATAR_SIZE = 250;
+// const avatarsDir = path.resolve('public', 'avatars');
 
 // Controllers:
 
@@ -81,7 +81,7 @@ const updateCurrent = async (req, res) => {
   }
 
   if (file) {
-    body.avatarUrl = file.path; //await storeAvatar(userId, file);
+    body.avatarUrl = file.path; // await storeAvatar(userId, file);
   }
 
   const user = await User.findByIdAndUpdate(userId, body, { new: true });
@@ -93,7 +93,7 @@ const updateAvatar = async (req, res) => {
   if (!req.file) {
     throw new HttpError(400, 'Avatar is required');
   }
-  const newAvatarUrl = req.file.path; //await storeAvatar(userId, req.file);
+  const newAvatarUrl = req.file.path; // await storeAvatar(userId, req.file);
   const { avatarUrl } = await User.findByIdAndUpdate(
     userId,
     { avatarUrl: newAvatarUrl },
@@ -106,6 +106,8 @@ const updateAvatar = async (req, res) => {
 };
 
 // Utils:
+
+/* delete later
 
 const storeAvatar = async (userId, file) => {
   if (!file) {
@@ -132,6 +134,8 @@ const storeAvatar = async (userId, file) => {
   const avatarUrl = `${BASE_URL}:${PORT}/avatars/${filename}`;
   return avatarUrl;
 };
+
+*/
 
 const selectUserInfo = user => ({
   name: user.name,

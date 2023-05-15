@@ -1,4 +1,3 @@
-const { json } = require('express');
 const { ctrlWrapper, HttpError } = require('../helpers');
 
 const { Pet } = require('../models/pet');

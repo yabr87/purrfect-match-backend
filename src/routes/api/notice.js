@@ -15,18 +15,13 @@ const { schemas } = require('../../models/notice');
 
 const router = Router();
 
-router.get(
-  '/',
-  tryAuthenticate,
-  validateQuery(schemas.getQueryParams),
-  ctrl.get
-);
+router.get('/', tryAuthenticate, validateQuery(schemas.getParams), ctrl.get);
 
 router.post(
   '/',
   authenticate,
   uploadCloud.single('photo'),
-  validateBody(schemas.notice),
+  validateBody(schemas.addParams),
   ctrl.add
 );
 
@@ -57,7 +52,7 @@ router.patch(
   '/:noticeId/favorite',
   authenticate,
   validateId('noticeId'),
-  validateBody(schemas.updateFavorite),
+  validateBody(schemas.updateFavoriteParams),
   ctrl.updateFavorite
 );
 module.exports = router;
