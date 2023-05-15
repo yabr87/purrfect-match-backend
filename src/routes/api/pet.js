@@ -14,13 +14,13 @@ const { schemas } = require('../../models/pet');
 
 const router = Router();
 
-router.get('/', authenticate, validateQuery(schemas.getQueryParams), ctrl.get);
+router.get('/', authenticate, validateQuery(schemas.getParams), ctrl.get);
 
 router.post(
   '/',
   authenticate,
   uploadCloud.single('photo'),
-  validateBody(schemas.pet),
+  validateBody(schemas.addParams),
   ctrl.add
 );
 

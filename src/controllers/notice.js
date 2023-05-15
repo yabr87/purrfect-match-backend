@@ -1,6 +1,7 @@
 const { ctrlWrapper, HttpError } = require('../helpers');
 
 const { Notice } = require('../models/notice');
+const { User } = require('../models/user');
 
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
@@ -9,22 +10,22 @@ const get = async (req, res) => {
   const skip = (page - 1) * limit;
 
   if (title) {
-    filter['title'] = { $regex: title, $options: 'i' };
+    filter.title = { $regex: title, $options: 'i' };
   }
 
   if (own !== undefined) {
     if (!userId) {
       throw new HttpError(401);
     }
-    filter['owner'] = own ? userId : { $ne: userId };
+    filter.owner = own ? userId : { $ne: userId };
   }
 
   if (favorite !== undefined) {
     if (!userId) {
       throw new HttpError(401);
     }
-    filter['favorites'] = favorite
-      ? { $all: [userId] } //new ObjectId(userId)
+    filter.favorites = favorite
+      ? { $all: [userId] }
       : { $not: { $all: [userId] } };
   }
   const notices = await Notice.find(filter, undefined, {
@@ -45,15 +46,15 @@ const get = async (req, res) => {
 const getById = async (req, res) => {
   const { noticeId } = req.params;
   const userId = req.user?._id;
-  const notice = await Notice.findById(noticeId)
-    .populate('owner', '-_id phone city')
-    .lean();
+  const notice = await Notice.findById(noticeId).lean();
 
   if (!notice) {
     throw new HttpError(404);
   }
-
-  res.json(formatNotice(notice, userId));
+  const owner = await User.findById(notice.owner, '-_id phone city').lean();
+  formatNotice(notice, userId);
+  notice.owner = owner;
+  res.json(notice);
 };
 
 const add = async (req, res) => {

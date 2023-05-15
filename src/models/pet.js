@@ -1,10 +1,13 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
+const handleMongooseError = require('../helpers/handleMongooseError');
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 16;
 const BREED_MIN_LENGTH = 2;
 const BREED_MAX_LENGTH = 16;
+const COMMENTS_MIN_LENGTH = 0;
+const COMMENTS_MAX_LENGTH = 120;
 
 // Mongoose schema:
 
@@ -19,12 +22,12 @@ const petSchema = new Schema(
       required: [true, 'Name is required'],
     },
     birthday: {
-      type: String,
+      type: Date,
       required: [true, 'Birthday is required'],
     },
     breed: {
       type: String,
-      default: '',
+      required: [true, 'Breed is required'],
     },
     photoUrl: {
       type: String,
@@ -32,32 +35,32 @@ const petSchema = new Schema(
     },
     comments: {
       type: String,
+      default: '',
     },
   },
   { versionKey: false, timestamps: true }
 );
 
+petSchema.post('save', handleMongooseError);
 const Pet = model('pet', petSchema);
 
 // Validation schemas:
 
-const pet = Joi.object({
+const addParams = Joi.object({
   name: Joi.string().required().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH),
-  birthday: Joi.string()
-    .required()
-    .pattern(/^\d{2}.\d{2}.\d{4}$/),
+  birthday: Joi.date().iso().less('now').required(),
   breed: Joi.string().required().min(BREED_MIN_LENGTH).max(BREED_MAX_LENGTH),
-  comments: Joi.string().min(8).max(120),
+  comments: Joi.string().min(COMMENTS_MIN_LENGTH).max(COMMENTS_MAX_LENGTH),
 });
 
-const getQueryParams = Joi.object({
-  page: Joi.number().integer().positive(),
-  limit: Joi.number().integer().positive(),
+const getParams = Joi.object({
+  page: Joi.number().integer().min(1),
+  limit: Joi.number().integer().min(1).max(100),
 });
 
 const schemas = {
-  pet,
-  getQueryParams,
+  addParams,
+  getParams,
 };
 
 module.exports = {
