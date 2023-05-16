@@ -3,9 +3,19 @@ const { ctrlWrapper } = require('../helpers');
 const { News } = require('../models/news');
 
 const getNews = async (req, res) => {
-  const { page = 1, limit = 6 } = req.query;
+  const { page = 1, limit = 6, search } = req.query;
   const skip = (page - 1) * limit;
-  const hits = await News.find({}, null, {
+
+  const query = search
+    ? {
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { content: { $regex: search, $options: 'i' } },
+        ],
+      }
+    : {};
+
+  const hits = await News.find(query, null, {
     skip,
     limit,
     sort: {
@@ -13,8 +23,14 @@ const getNews = async (req, res) => {
     },
   }).lean();
 
-  const totalHits = await News.count().lean();
-  res.json({ totalHits, hits });
+  const totalResults = await News.count(query).lean();
+
+  res.json({
+    totalResults,
+    page,
+    totalPages: Math.ceil(totalResults / limit),
+    results: hits,
+  });
 };
 
 module.exports = {
