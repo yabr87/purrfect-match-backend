@@ -35,22 +35,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "format": "jwt",
-                      "description": "Authorization token",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
-                    },
-                    "user": {
-                      "$ref": "#/components/schemas/UserInfo"
-                    }
-                  },
-                  "required": [
-                    "token",
-                    "user"
-                  ]
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -90,22 +75,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "format": "jwt",
-                      "description": "Authorization token",
-                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
-                    },
-                    "user": {
-                      "$ref": "#/components/schemas/UserInfo"
-                    }
-                  },
-                  "required": [
-                    "token",
-                    "user"
-                  ]
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -125,6 +95,35 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/users/refresh": {
+      "post": {
+        "operationId": "refreshUser",
+        "summary": "Refresh access token and return brief user info",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -830,6 +829,10 @@
       "UserInfo": {
         "type": "object",
         "properties": {
+          "name": {
+            "type": "string",
+            "description": "User name"
+          },
           "email": {
             "type": "string",
             "format": "email",
@@ -842,9 +845,28 @@
           }
         },
         "example": {
+          "name": "User",
           "email": "user@mail.com",
           "avatarUrl": "http://cloud-storage.com/avatar.jpg"
         }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "format": "jwt",
+            "description": "Authorization token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserInfo"
+          }
+        },
+        "required": [
+          "token",
+          "user"
+        ]
       },
       "Notice": {
         "type": "object",

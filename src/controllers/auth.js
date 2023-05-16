@@ -61,6 +61,14 @@ const logout = async (req, res) => {
   res.status(204).send();
 };
 
+const refresh = async (req, res) => {
+  const { _id: userId } = req.user;
+  const user = await refreshUserToken(userId);
+  const { token } = user;
+
+  res.json({ token, user: selectUserInfo(user) });
+};
+
 const getCurrent = async (req, res) => {
   res.json(selectDetailedUserInfo(req.user));
 };
@@ -160,7 +168,7 @@ const removeUserToken = userId => setUserToken(userId, '');
 const refreshUserToken = async userId => {
   const tokenPayload = { id: userId };
   const token = jwt.sign(tokenPayload, process.env.SECRET_KEY, {
-    expiresIn: '23h',
+    expiresIn: '50h',
   });
 
   return setUserToken(userId, token);
@@ -170,6 +178,7 @@ module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
+  refresh: ctrlWrapper(refresh),
   getCurrent: ctrlWrapper(getCurrent),
   updateCurrent: ctrlWrapper(updateCurrent),
   updateAvatar: ctrlWrapper(updateAvatar),
