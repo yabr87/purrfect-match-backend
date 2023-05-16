@@ -54,8 +54,8 @@ const addParams = Joi.object({
 });
 
 const getParams = Joi.object({
-  page: Joi.number().integer().min(1),
-  limit: Joi.number().integer().min(1).max(100),
+  page: Joi.number().integer().min(1).empty(''),
+  limit: Joi.number().integer().min(1).max(100).empty(''),
 });
 
 const schemas = {
