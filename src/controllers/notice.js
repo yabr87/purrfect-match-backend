@@ -32,7 +32,7 @@ const get = async (req, res) => {
     skip,
     limit,
     sort: {
-      updatedAt: -1,
+      createdAt: -1,
     },
   }).lean();
 
