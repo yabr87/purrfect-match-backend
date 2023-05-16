@@ -6,6 +6,7 @@ const authRouter = require('./routes/api/auth');
 const noticeRouter = require('./routes/api/notice');
 const petRouter = require('./routes/api/pet');
 const newsRouter = require('./routes/api/news');
+const ourFriends = require('./routes/api/friends');
 
 const { HttpError } = require('./helpers');
 
@@ -26,6 +27,7 @@ app.use('/api/users', authRouter);
 app.use('/api/notices', noticeRouter);
 app.use('/api/pets', petRouter);
 app.use('/api/news', newsRouter);
+app.use('/api/friends', ourFriends);
 
 app.use((req, res, next) => {
   next(new HttpError(404));
