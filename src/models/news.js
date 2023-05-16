@@ -43,8 +43,9 @@ const news = Joi.object({
 // може буде потрібна на всякий випадок
 
 const getQueryParams = Joi.object({
-  page: Joi.number().integer().positive(),
-  limit: Joi.number().integer().positive(),
+  page: Joi.number().integer().positive().empty(''),
+  limit: Joi.number().integer().positive().empty(''),
+  search: Joi.string().empty(''),
 });
 
 const schemas = {
