@@ -3,7 +3,7 @@
   "info": {
     "title": "GoIT Final team project",
     "description": "GoIT Final team project",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "contact": {
       "name": "Yaroslav Bernatovych",
       "url": "https://github.com/yabr87"
@@ -349,7 +349,34 @@
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalResults": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "page": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notice"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -604,9 +631,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Pet"
+                  "type": "object",
+                  "properties": {
+                    "totalResults": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "page": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "totalPages": {
+                      "type": "number",
+                      "example": 1
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pet"
+                      }
+                    }
                   }
                 }
               }
@@ -859,6 +903,12 @@
             "type": "string",
             "format": "binary",
             "description": "Pet photo"
+          },
+          "favorite": {
+            "type": "boolean"
+          },
+          "own": {
+            "type": "boolean"
           }
         },
         "example": {
@@ -870,7 +920,9 @@
           "sex": "male",
           "location": "Lviv",
           "price": 120,
-          "comments": "Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too!"
+          "comments": "Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too!",
+          "favorite": true,
+          "own": false
         }
       },
       "Pet": {
