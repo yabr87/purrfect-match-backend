@@ -8,6 +8,6 @@ const { schemas } = require('../../models/friends');
 
 const router = Router();
 
-router.get('/', validateQuery(schemas.getQueryParams), ctrl.getFriends);
+router.get('/friends', validateQuery(schemas.getQueryParams), ctrl.getFriends);
 
 module.exports = router;

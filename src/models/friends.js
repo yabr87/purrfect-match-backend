@@ -16,7 +16,7 @@ const friendsSchema = new Schema(
       required: false,
     },
     addressUrl: {
-      type: Date,
+      type: String,
       required: false,
     },
     imageUrl: {
@@ -51,7 +51,7 @@ const friends = Joi.object({
     addressUrl: Joi.date(),
     imgUrl: Joi.string().default(''),
     address: Joi.string(),
-    workDays: Joi.string(),
+    workDays: Joi.array(),
     phone: Joi.string(),
     email: Joi.string(),
 });
