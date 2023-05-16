@@ -105,14 +105,18 @@ const addParams = Joi.object({
 });
 
 const getParams = Joi.object({
-  category: Joi.string().valid(...NOTICE_CATEGORIES_LIST),
-  title: Joi.string(),
-  sex: Joi.string().valid(...SEX_LIST),
-  location: Joi.string(),
-  favorite: Joi.boolean(),
-  own: Joi.boolean(),
-  page: Joi.number().integer().min(1),
-  limit: Joi.number().integer().min(1).max(100),
+  category: Joi.string()
+    .valid(...NOTICE_CATEGORIES_LIST)
+    .empty(''),
+  title: Joi.string().empty(''),
+  sex: Joi.string()
+    .valid(...SEX_LIST)
+    .empty(''),
+  location: Joi.string().empty(''),
+  favorite: Joi.boolean().empty(''),
+  own: Joi.boolean().empty(''),
+  page: Joi.number().integer().min(1).empty(''),
+  limit: Joi.number().integer().min(1).max(100).empty(''),
 });
 
 const updateFavoriteParams = Joi.object({
