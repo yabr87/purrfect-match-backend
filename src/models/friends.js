@@ -59,7 +59,7 @@ const friends = Joi.object({
 
 const getQueryParams = Joi.object({
   page: Joi.number().integer().positive(),
-  limit: Joi.number().integer().positive(),
+  limit: Joi.number().integer().max(100).positive(),
 });
 
 const schemas = {
