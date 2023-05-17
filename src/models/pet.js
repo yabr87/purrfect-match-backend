@@ -58,9 +58,16 @@ const getParams = Joi.object({
   limit: Joi.number().integer().min(1).max(100).empty(''),
 });
 
+const photoConfig = {
+  field: 'photo',
+  folder: 'pets',
+  // transformation: [{ width: 340, height: 340, crop: 'fill' }],
+};
+
 const schemas = {
   addParams,
   getParams,
+  photoConfig,
 };
 
 module.exports = {

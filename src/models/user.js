@@ -96,10 +96,17 @@ const updateParams = Joi.object({
 // .min(1)
 // .messages({ 'object.min': 'missing fields' });
 
+const avatarConfig = {
+  field: 'avatar',
+  folder: 'avatars',
+  // transformation: [{ width: 180, height: 180, crop: 'fill' }],
+};
+
 const schemas = {
   registerParams,
   loginParams,
   updateParams,
+  avatarConfig,
 };
 
 module.exports = {
