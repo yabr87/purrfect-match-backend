@@ -3,7 +3,7 @@
   "info": {
     "title": "GoIT Final team project",
     "description": "GoIT Final team project",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "contact": {
       "name": "Yaroslav Bernatovych",
       "url": "https://github.com/yabr87"
@@ -927,10 +927,12 @@
             "description": "Pet photo"
           },
           "favorite": {
-            "type": "boolean"
+            "type": "boolean",
+            "readOnly": true
           },
           "own": {
-            "type": "boolean"
+            "type": "boolean",
+            "readOnly": true
           }
         },
         "example": {
