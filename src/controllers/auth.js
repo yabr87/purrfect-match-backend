@@ -1,16 +1,11 @@
-// const path = require('path');
-// const fs = require('fs/promises');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-// const Jimp = require('jimp');
 
-const { ctrlWrapper, HttpError } = require('../helpers');
+const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { User } = require('../models/user');
 
 const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
-// const AVATAR_SIZE = 250;
-// const avatarsDir = path.resolve('public', 'avatars');
 
 // Controllers:
 
@@ -88,11 +83,18 @@ const updateCurrent = async (req, res) => {
     }
   }
 
+  const oldAvatarUrl = req.user.avatarUrl;
+
   if (file) {
-    body.avatarUrl = file.path; // await storeAvatar(userId, file);
+    body.avatarUrl = file.path;
   }
 
   const user = await User.findByIdAndUpdate(userId, body, { new: true });
+
+  if (oldAvatarUrl !== user.avatarUrl) {
+    removeFromCloud(oldAvatarUrl);
+  }
+
   res.json(selectDetailedUserInfo(user));
 };
 
@@ -101,12 +103,17 @@ const updateAvatar = async (req, res) => {
   if (!req.file) {
     throw new HttpError(400, 'Avatar is required');
   }
-  const newAvatarUrl = req.file.path; // await storeAvatar(userId, req.file);
+
+  const oldAvatarUrl = req.user.avatarUrl;
+
+  const newAvatarUrl = req.file.path;
   const { avatarUrl } = await User.findByIdAndUpdate(
     userId,
     { avatarUrl: newAvatarUrl },
     { new: true }
   );
+
+  removeFromCloud(oldAvatarUrl);
 
   res.json({
     avatarUrl,
@@ -114,36 +121,6 @@ const updateAvatar = async (req, res) => {
 };
 
 // Utils:
-
-/* delete later
-
-const storeAvatar = async (userId, file) => {
-  if (!file) {
-    return null;
-  }
-
-  const { path: tempUpload, mimetype } = file;
-
-  const extention = mimetype?.split('/')[1];
-  const newExtention = extention !== 'png' ? 'jpg' : 'png';
-  const filename = `${userId}.${newExtention}`;
-
-  try {
-    const resultUpload = path.join(avatarsDir, filename);
-    const avatarImage = await Jimp.read(tempUpload);
-    await avatarImage
-      .cover(AVATAR_SIZE, AVATAR_SIZE)
-      .quality(75)
-      .writeAsync(resultUpload);
-  } finally {
-    await fs.unlink(tempUpload);
-  }
-  const { BASE_URL, PORT } = process.env;
-  const avatarUrl = `${BASE_URL}:${PORT}/avatars/${filename}`;
-  return avatarUrl;
-};
-
-*/
 
 const selectUserInfo = user => ({
   name: user.name,
