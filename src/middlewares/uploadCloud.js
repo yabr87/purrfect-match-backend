@@ -48,7 +48,7 @@ const uploadCloud = ({ field, ...restConfig }) => {
   return (req, res, next) => {
     req.fileConfig = restConfig;
     uploadMiddleware(req, res, err => {
-      next(err && new HttpError(err.status && 400, err.message));
+      next(err && new HttpError(err.status || 400, err.message));
     });
   };
 };
