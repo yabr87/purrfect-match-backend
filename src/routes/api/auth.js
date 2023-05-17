@@ -5,7 +5,6 @@ const ctrl = require('../../controllers/auth');
 const {
   authenticate,
   validateBody,
-  // upload,
   uploadCloud,
 } = require('../../middlewares');
 
@@ -26,8 +25,7 @@ router.get('/current', authenticate, ctrl.getCurrent);
 router.patch(
   '/current',
   authenticate,
-  // upload.single('avatar'),
-  uploadCloud.single('avatar'),
+  uploadCloud(schemas.avatarConfig),
   validateBody(schemas.updateParams),
   ctrl.updateCurrent
 );
@@ -35,8 +33,7 @@ router.patch(
 router.patch(
   '/current/avatar',
   authenticate,
-  // upload.single('avatar'),
-  uploadCloud.single('avatar'),
+  uploadCloud(schemas.avatarConfig),
   ctrl.updateAvatar
 );
 

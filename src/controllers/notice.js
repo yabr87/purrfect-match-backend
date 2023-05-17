@@ -1,4 +1,4 @@
-const { ctrlWrapper, HttpError } = require('../helpers');
+const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Notice } = require('../models/notice');
 const { User } = require('../models/user');
@@ -87,6 +87,8 @@ const removeById = async (req, res) => {
   if (!notice) {
     throw new HttpError(404);
   }
+
+  removeFromCloud(notice.photoUrl);
 
   res.json(formatNotice(notice, userId));
 };

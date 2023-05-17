@@ -20,7 +20,7 @@ router.get('/', tryAuthenticate, validateQuery(schemas.getParams), ctrl.get);
 router.post(
   '/',
   authenticate,
-  uploadCloud.single('photo'),
+  uploadCloud(schemas.photoConfig),
   validateBody(schemas.addParams),
   ctrl.add
 );

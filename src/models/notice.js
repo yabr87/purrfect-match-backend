@@ -123,10 +123,17 @@ const updateFavoriteParams = Joi.object({
   favorite: Joi.boolean().required(),
 });
 
+const photoConfig = {
+  field: 'photo',
+  folder: 'notices',
+  // transformation: [{ width: 340, height: 340, crop: 'fill' }],
+};
+
 const schemas = {
   addParams,
   getParams,
   updateFavoriteParams,
+  photoConfig,
 };
 
 module.exports = {

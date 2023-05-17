@@ -1,4 +1,4 @@
-const { ctrlWrapper, HttpError } = require('../helpers');
+const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Pet } = require('../models/pet');
 
@@ -52,6 +52,8 @@ const removeById = async (req, res) => {
   if (!pet) {
     throw new HttpError(404);
   }
+
+  removeFromCloud(pet.photoUrl);
 
   res.json(pet);
 };

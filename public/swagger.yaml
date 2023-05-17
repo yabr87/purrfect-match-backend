@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: GoIT Final team project
   description: GoIT Final team project
-  version: 1.5.0
+  version: 1.5.1
   contact:
     name: Yaroslav Bernatovych
     url: https://github.com/yabr87
@@ -574,8 +574,10 @@ components:
           description: Pet photo
         favorite:
           type: boolean
+          readOnly: true
         own:
           type: boolean
+          readOnly: true
       example:
         category: sell
         title: Cute dog looking for a home
