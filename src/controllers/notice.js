@@ -57,7 +57,7 @@ const getById = async (req, res) => {
   if (!notice) {
     throw new HttpError(404);
   }
-  const owner = await User.findById(notice.owner, '-_id phone city').lean();
+  const owner = await User.findById(notice.owner, '-_id email phone').lean();
   formatNotice(notice, userId);
   notice.owner = owner;
   res.json(notice);
