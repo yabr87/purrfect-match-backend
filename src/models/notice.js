@@ -63,6 +63,7 @@ const noticeSchema = new Schema(
       type: String,
       required: [true, 'Pet location is required'],
     },
+
     price: {
       type: Number,
     },
@@ -73,6 +74,10 @@ const noticeSchema = new Schema(
     favorites: {
       type: [{ type: Schema.Types.ObjectId, ref: 'users' }],
       default: [],
+    },
+    rating: {
+      type: Number,
+      required: [true, 'Rating is required'],
     },
   },
   { versionKey: false, timestamps: true }
@@ -108,6 +113,7 @@ const addParams = Joi.object({
     otherwise: Joi.forbidden(),
   }),
   comments: Joi.string().min(COMMENTS_MIN_LENGTH).max(COMMENTS_MAX_LENGTH),
+  increaseRating: Joi.number().integer().required(),
 });
 
 const getParams = Joi.object({
@@ -127,6 +133,7 @@ const getParams = Joi.object({
   own: Joi.boolean().empty(''),
   page: Joi.number().integer().min(1).empty(''),
   limit: Joi.number().integer().min(1).max(100).empty(''),
+  rating: Joi.number().integer().required(),
 });
 
 const updateFavoriteParams = Joi.object({

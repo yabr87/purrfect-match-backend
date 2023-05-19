@@ -5,6 +5,8 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 const { Notice } = require('../models/notice');
 const { User } = require('../models/user');
 
+const { getRating } = require('../utils/getRating');
+
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
@@ -93,9 +95,15 @@ const add = async (req, res) => {
     user: { _id: userId },
     body,
     file,
+    increaseRating = 0,
   } = req;
+
+  const rating = getRating(increaseRating);
+
   body.photoUrl = file.path;
-  const notice = (await Notice.create({ ...body, owner: userId })).toObject();
+  const notice = (
+    await Notice.create({ ...body, owner: userId, rating })
+  ).toObject();
   res.status(201).json(formatNotice(notice, userId));
 };
 
