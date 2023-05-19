@@ -59,7 +59,7 @@ const getById = async (req, res) => {
   }
   const owner = await User.findById(notice.owner, '-_id email phone').lean();
   formatNotice(notice, userId);
-  notice.owner = owner;
+  notice.owner = owner || { email: '', phone: '' };
   res.json(notice);
 };
 
