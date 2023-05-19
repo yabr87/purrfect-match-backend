@@ -119,7 +119,10 @@ const getParams = Joi.object({
     .valid(...SEX_LIST)
     .empty(''),
   location: Joi.string().empty(''),
-  age: customJoi.stringArray().items(Joi.number(), Joi.strip()).max(5).sparse(),
+  age: Joi.alternatives().try(
+    Joi.array().items(Joi.number()).max(5),
+    customJoi.stringArray().items(Joi.number(), Joi.strip()).max(5).sparse()
+  ),
   favorite: Joi.boolean().empty(''),
   own: Joi.boolean().empty(''),
   page: Joi.number().integer().min(1).empty(''),
