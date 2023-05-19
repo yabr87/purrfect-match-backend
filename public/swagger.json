@@ -318,6 +318,28 @@
             }
           },
           {
+            "name": "sex",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "male",
+                "female"
+              ]
+            }
+          },
+          {
+            "name": "age",
+            "in": "query",
+            "description": "Full years. Can be used like \"age=1&age=2\" or like \"age=1,2\"",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          {
             "name": "favorite",
             "in": "query",
             "schema": {
