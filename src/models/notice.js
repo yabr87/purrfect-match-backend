@@ -84,6 +84,12 @@ const Notice = model('notices', noticeSchema);
 
 // Validation schemas:
 
+const customJoi = Joi.extend(Joi => ({
+  base: Joi.array(),
+  type: 'stringArray',
+  coerce: value => ({ value: value?.split(',') ?? [] }),
+}));
+
 const addParams = Joi.object({
   category: Joi.string()
     .required()
@@ -113,6 +119,10 @@ const getParams = Joi.object({
     .valid(...SEX_LIST)
     .empty(''),
   location: Joi.string().empty(''),
+  age: Joi.alternatives().try(
+    Joi.array().items(Joi.number()).max(5),
+    customJoi.stringArray().items(Joi.number(), Joi.strip()).max(5).sparse()
+  ),
   favorite: Joi.boolean().empty(''),
   own: Joi.boolean().empty(''),
   page: Joi.number().integer().min(1).empty(''),

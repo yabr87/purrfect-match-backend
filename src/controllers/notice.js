@@ -1,3 +1,5 @@
+const dateSub = require('date-fns/sub');
+
 const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Notice } = require('../models/notice');
@@ -6,7 +8,7 @@ const { User } = require('../models/user');
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
-  const { page = 1, limit = 12, favorite, own, title, ...filter } = query;
+  const { page = 1, limit = 12, favorite, own, title, age, ...filter } = query;
   const skip = (page - 1) * limit;
 
   if (title) {
@@ -28,6 +30,29 @@ const get = async (req, res) => {
       ? { $all: [userId] }
       : { $not: { $all: [userId] } };
   }
+
+  if (age?.length > 0) {
+    const ageFilter = age.map(fullYears => {
+      const dateFrom = dateSub(new Date(), { years: fullYears + 1 });
+      const dateUntil = dateSub(new Date(), { years: fullYears });
+
+      const dateRangeCondition = {
+        $and: [
+          { birthday: { $gte: dateFrom } },
+          { birthday: { $lt: dateUntil } },
+        ],
+      };
+
+      return dateRangeCondition;
+    });
+
+    if (age.length === 1) {
+      filter.$and = ageFilter[0].$and;
+    } else {
+      filter.$or = ageFilter;
+    }
+  }
+
   const totalResults = await Notice.find(filter).count();
   const notices = await Notice.find(filter, null, {
     skip,
