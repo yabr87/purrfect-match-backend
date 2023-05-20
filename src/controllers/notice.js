@@ -247,7 +247,7 @@ const formatNotice = (notice, userId) => {
   }
   delete notice.favorites;
   delete notice.owner;
-  delete notice.promoDate;
+  // delete notice.promoDate;
   return notice;
 };
 
