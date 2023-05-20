@@ -122,6 +122,11 @@ const updateById = async (req, res) => {
     { _id: noticeId, owner: userId },
     'category price photoUrl promoDate'
   );
+
+  if (!notice) {
+    throw new HttpError(404);
+  }
+
   const oldPhotoUrl = notice.photoUrl;
 
   if (file) {
@@ -161,7 +166,9 @@ const updateById = async (req, res) => {
     { new: true }
   ).lean();
 
-  await User.findByIdAndUpdate(userId, { $inc: { balance: -promo } });
+  if (promo) {
+    await User.findByIdAndUpdate(userId, { $inc: { balance: -promo } });
+  }
 
   if (oldPhotoUrl !== notice.photoUrl) {
     removeFromCloud(oldPhotoUrl);
