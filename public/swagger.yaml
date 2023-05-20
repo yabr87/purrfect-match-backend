@@ -285,6 +285,30 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+    patch:
+      operationId: updateNotice
+      tags: [Notices]
+      summary: Update notice by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noticeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notice'
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError' 
     delete:
       operationId: removeNoticeById
       tags: [Notices]
@@ -503,6 +527,11 @@ components:
           description: "User's avatar URL"
           readOnly: true
           example: http://cloud-storage.com/avatar.jpg
+        balance:
+          type: number
+          description: "User's account balance"
+          readOnly: true
+          example: 50
     UserWithAvatar:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -590,6 +619,9 @@ components:
         own:
           type: boolean
           readOnly: true
+        promo: 
+          type: integer
+          writeOnly: true
       example:
         category: sell
         title: Cute dog looking for a home
@@ -602,7 +634,7 @@ components:
         comments: Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too! 
         favorite: true
         own: false
-        
+        promo: 2
     Pet:
       type: object
       properties:
