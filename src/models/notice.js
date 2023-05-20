@@ -116,6 +116,7 @@ const addParams = Joi.object({
 });
 
 const updateParams = Joi.object({
+  _id: Joi.string().strip(),
   category: Joi.string().valid(...NOTICE_CATEGORIES_LIST),
   title: Joi.string().min(TITLE_MIN_LENGTH).max(TITLE_MAX_LENGTH),
   name: Joi.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH),
