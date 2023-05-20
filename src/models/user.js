@@ -42,6 +42,9 @@ const usersSchema = new Schema(
       type: String,
       default: '',
     },
+    balance: {
+      type: Number,
+    },
     token: {
       type: String,
       default: '',
