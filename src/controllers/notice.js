@@ -1,9 +1,11 @@
-const dateSub = require('date-fns/sub');
+const subDate = require('date-fns/sub');
+const addDate = require('date-fns/add');
 
 const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Notice } = require('../models/notice');
 const { User } = require('../models/user');
+const { NOTICE_CATEGORIES } = require('../models/notice').constants;
 
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
@@ -33,8 +35,8 @@ const get = async (req, res) => {
 
   if (age?.length > 0) {
     const ageFilter = age.map(fullYears => {
-      const dateFrom = dateSub(new Date(), { years: fullYears + 1 });
-      const dateUntil = dateSub(new Date(), { years: fullYears });
+      const dateFrom = subDate(new Date(), { years: fullYears + 1 });
+      const dateUntil = subDate(new Date(), { years: fullYears });
 
       const dateRangeCondition = {
         $and: [
@@ -58,7 +60,7 @@ const get = async (req, res) => {
     skip,
     limit,
     sort: {
-      createdAt: -1,
+      promoDate: -1,
     },
   }).lean();
 
@@ -95,8 +97,77 @@ const add = async (req, res) => {
     file,
   } = req;
   body.photoUrl = file.path;
+  const { promo } = body.promo;
+  if (promo) {
+    delete body.promo;
+    body.promoDate = addDate(new Date(), { days: promo });
+  }
   const notice = (await Notice.create({ ...body, owner: userId })).toObject();
   res.status(201).json(formatNotice(notice, userId));
+};
+
+const updateById = async (req, res) => {
+  const {
+    user: { _id: userId, balance = 0 },
+    body,
+    file,
+    params: { noticeId },
+  } = req;
+
+  if (Object.keys(body).length === 0 && !file) {
+    throw new HttpError(400, 'Missing fields');
+  }
+
+  let notice = await Notice.findOne(
+    { _id: noticeId, owner: userId },
+    'category price photoUrl promoDate'
+  );
+  const oldPhotoUrl = notice.photoUrl;
+
+  if (file) {
+    body.photoUrl = file.path;
+  }
+
+  const { promo } = body;
+  if (promo) {
+    if (balance < promo) {
+      throw new HttpError(400, 'Not enough funds');
+    }
+    const basePromoDate = Math.max(notice.promoDate, Date.now());
+    body.promoDate = addDate(basePromoDate, { days: promo });
+    delete body.promo;
+  }
+
+  const category = body.category ?? notice.category;
+  const price = body.price ?? notice.price;
+
+  if (body.category === NOTICE_CATEGORIES.sell && !price) {
+    throw new HttpError(400, 'Price is needed');
+  }
+  if (body.price && category !== NOTICE_CATEGORIES.sell) {
+    throw new HttpError(400, 'Unexpected field Price');
+  }
+
+  body.category = category;
+  if (category === NOTICE_CATEGORIES.sell) {
+    body.price = price;
+  } else {
+    body.$unset = { price: '' };
+  }
+
+  notice = await Notice.findOneAndUpdate(
+    { _id: noticeId, owner: userId },
+    { ...body },
+    { new: true }
+  ).lean();
+
+  await User.findByIdAndUpdate(userId, { $inc: { balance: -promo } });
+
+  if (oldPhotoUrl !== notice.photoUrl) {
+    removeFromCloud(oldPhotoUrl);
+  }
+
+  res.json(formatNotice(notice, userId));
 };
 
 const removeById = async (req, res) => {
@@ -176,6 +247,7 @@ const formatNotice = (notice, userId) => {
   }
   delete notice.favorites;
   delete notice.owner;
+  delete notice.promoDate;
   return notice;
 };
 
@@ -183,6 +255,7 @@ module.exports = {
   get: ctrlWrapper(get),
   add: ctrlWrapper(add),
   getById: ctrlWrapper(getById),
+  updateById: ctrlWrapper(updateById),
   removeById: ctrlWrapper(removeById),
   addToFavorites: ctrlWrapper(addToFavorites),
   removeFromFavorites: ctrlWrapper(removeFromFavorites),

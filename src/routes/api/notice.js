@@ -27,6 +27,15 @@ router.post(
 
 router.get('/:noticeId', tryAuthenticate, validateId('noticeId'), ctrl.getById);
 
+router.patch(
+  '/:noticeId',
+  authenticate,
+  validateId('noticeId'),
+  uploadCloud(schemas.photoConfig),
+  validateBody(schemas.updateParams),
+  ctrl.updateById
+);
+
 router.delete(
   '/:noticeId',
   authenticate,

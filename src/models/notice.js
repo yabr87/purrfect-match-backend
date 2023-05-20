@@ -74,6 +74,10 @@ const noticeSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: 'users' }],
       default: [],
     },
+    promoDate: {
+      type: Date,
+      default: () => new Date(),
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -108,6 +112,20 @@ const addParams = Joi.object({
     otherwise: Joi.forbidden(),
   }),
   comments: Joi.string().min(COMMENTS_MIN_LENGTH).max(COMMENTS_MAX_LENGTH),
+  promo: Joi.number().integer().min(1).empty(''),
+});
+
+const updateParams = Joi.object({
+  category: Joi.string().valid(...NOTICE_CATEGORIES_LIST),
+  title: Joi.string().min(TITLE_MIN_LENGTH).max(TITLE_MAX_LENGTH),
+  name: Joi.string().min(NAME_MIN_LENGTH).max(NAME_MAX_LENGTH),
+  birthday: Joi.date().iso().less('now'),
+  breed: Joi.string().min(BREED_MIN_LENGTH).max(BREED_MAX_LENGTH),
+  sex: Joi.string().valid(...SEX_LIST),
+  location: Joi.string(),
+  price: Joi.number().integer().positive(),
+  comments: Joi.string().min(COMMENTS_MIN_LENGTH).max(COMMENTS_MAX_LENGTH),
+  promo: Joi.number().integer().min(1).empty(''),
 });
 
 const getParams = Joi.object({
@@ -142,11 +160,15 @@ const photoConfig = {
 const schemas = {
   addParams,
   getParams,
+  updateParams,
   updateFavoriteParams,
   photoConfig,
 };
 
+const constants = { NOTICE_CATEGORIES };
+
 module.exports = {
   Notice,
   schemas,
+  constants,
 };

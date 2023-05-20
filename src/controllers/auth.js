@@ -6,6 +6,7 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 const { User } = require('../models/user');
 
 const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
+const NEW_BALANCE_VALUE = 50;
 
 // Controllers:
 
@@ -23,6 +24,7 @@ const register = async (req, res) => {
     ...body,
     avatarUrl: DEFAULT_AVATAR_URL,
     password: hashPassword,
+    balance: NEW_BALANCE_VALUE,
   });
 
   user = await refreshUserToken(user._id);
@@ -135,6 +137,7 @@ const selectDetailedUserInfo = user => ({
   city: user.city,
   phone: user.phone,
   avatarUrl: user.avatarUrl,
+  balance: user.balance,
 });
 
 const setUserToken = async (userId, token) =>

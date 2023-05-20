@@ -468,6 +468,48 @@
           }
         }
       },
+      "patch": {
+        "operationId": "updateNotice",
+        "tags": [
+          "Notices"
+        ],
+        "summary": "Update notice by ID",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "noticeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Notice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
       "delete": {
         "operationId": "removeNoticeById",
         "tags": [
@@ -827,6 +869,12 @@
             "description": "User's avatar URL",
             "readOnly": true,
             "example": "http://cloud-storage.com/avatar.jpg"
+          },
+          "balance": {
+            "type": "number",
+            "description": "User's account balance",
+            "readOnly": true,
+            "example": 50
           }
         }
       },
@@ -955,6 +1003,10 @@
           "own": {
             "type": "boolean",
             "readOnly": true
+          },
+          "promo": {
+            "type": "integer",
+            "writeOnly": true
           }
         },
         "example": {
@@ -968,7 +1020,8 @@
           "price": 120,
           "comments": "Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too!",
           "favorite": true,
-          "own": false
+          "own": false,
+          "promo": 2
         }
       },
       "Pet": {
