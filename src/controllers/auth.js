@@ -5,6 +5,8 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { User } = require('../models/user');
 
+const { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
+
 const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
 const NEW_BALANCE_VALUE = 50;
 
@@ -28,9 +30,11 @@ const register = async (req, res) => {
   });
 
   user = await refreshUserToken(user._id);
-  const { token } = user;
+  const { accessToken, refreshToken } = user;
 
-  res.status(201).json({ token, user: selectUserInfo(user) });
+  res
+    .status(201)
+    .json({ accessToken, refreshToken, user: selectUserInfo(user) });
 };
 
 const login = async (req, res) => {
@@ -48,9 +52,9 @@ const login = async (req, res) => {
   }
 
   user = await refreshUserToken(user._id);
-  const { token } = user;
+  const { accessToken, refreshToken } = user;
 
-  res.json({ token, user: selectUserInfo(user) });
+  res.json({ accessToken, refreshToken, user: selectUserInfo(user) });
 };
 
 const logout = async (req, res) => {
@@ -59,11 +63,24 @@ const logout = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const { _id: userId } = req.user;
-  const user = await refreshUserToken(userId);
-  const { token } = user;
+  const { body } = req;
+  try {
+    const { id } = jwt.verify(body.refreshToken, REFRESH_SECRET_KEY);
+    let user = await User.findById(id, 'refreshToken');
+    if (!user || user.refreshToken !== body.refreshToken) {
+      throw new HttpError(403, 'Invalid token');
+    }
 
-  res.json({ token, user: selectUserInfo(user) });
+    user = await refreshUserToken(id);
+    const { accessToken, refreshToken } = user;
+
+    res.json({
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    throw new HttpError(403, 'Invalid token');
+  }
 };
 
 const getCurrent = async (req, res) => {
@@ -140,18 +157,21 @@ const selectDetailedUserInfo = user => ({
   balance: user.balance,
 });
 
-const setUserToken = async (userId, token) =>
-  User.findByIdAndUpdate(userId, { token }, { new: true });
+const setUserToken = async (userId, accessToken, refreshToken) =>
+  User.findByIdAndUpdate(userId, { accessToken, refreshToken }, { new: true });
 
-const removeUserToken = userId => setUserToken(userId, '');
+const removeUserToken = userId => setUserToken(userId, '', '');
 
 const refreshUserToken = async userId => {
   const tokenPayload = { id: userId };
-  const token = jwt.sign(tokenPayload, process.env.SECRET_KEY, {
-    expiresIn: '50h',
+  const accessToken = jwt.sign(tokenPayload, ACCESS_SECRET_KEY, {
+    expiresIn: '2m',
+  });
+  const refreshToken = jwt.sign(tokenPayload, REFRESH_SECRET_KEY, {
+    expiresIn: '7d',
   });
 
-  return setUserToken(userId, token);
+  return setUserToken(userId, accessToken, refreshToken);
 };
 
 module.exports = {

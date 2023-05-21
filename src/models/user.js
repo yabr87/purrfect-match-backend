@@ -45,7 +45,11 @@ const usersSchema = new Schema(
     balance: {
       type: Number,
     },
-    token: {
+    accessToken: {
+      type: String,
+      default: '',
+    },
+    refreshToken: {
       type: String,
       default: '',
     },
@@ -87,6 +91,10 @@ const loginParams = Joi.object({
     .messages({ 'any.required': 'missing required "password" field' }),
 });
 
+const refreshParams = Joi.object({
+  refreshToken: Joi.string().required(),
+});
+
 const updateParams = Joi.object({
   name: Joi.string().trim().max(NAME_LENGTH),
   email: Joi.string().trim().lowercase().email().trim(),
@@ -108,6 +116,7 @@ const avatarConfig = {
 const schemas = {
   registerParams,
   loginParams,
+  refreshParams,
   updateParams,
   avatarConfig,
 };
