@@ -112,7 +112,7 @@ const addParams = Joi.object({
     otherwise: Joi.forbidden(),
   }),
   comments: Joi.string().min(COMMENTS_MIN_LENGTH).max(COMMENTS_MAX_LENGTH),
-  promo: Joi.number().integer().min(1).empty(''),
+  promo: Joi.number().integer().min(0).empty(''),
 });
 
 const updateParams = Joi.object({
