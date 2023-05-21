@@ -92,16 +92,21 @@ const getById = async (req, res) => {
 
 const add = async (req, res) => {
   const {
-    user: { _id: userId },
+    user: { _id: userId, balance = 0 },
     body,
     file,
   } = req;
   body.photoUrl = file.path;
-  const { promo } = body.promo;
+
+  const { promo } = body;
   if (promo) {
-    delete body.promo;
+    if (balance < promo) {
+      throw new HttpError(400, 'Not enough funds');
+    }
     body.promoDate = addDate(new Date(), { days: promo });
+    delete body.promo;
   }
+
   const notice = (await Notice.create({ ...body, owner: userId })).toObject();
   res.status(201).json(formatNotice(notice, userId));
 };
