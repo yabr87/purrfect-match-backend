@@ -5,10 +5,7 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { User } = require('../models/user');
 
-const { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY } = process.env;
-
-const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
-const NEW_BALANCE_VALUE = 50;
+const { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL } = process.env;
 
 // Controllers:
 
@@ -24,9 +21,7 @@ const register = async (req, res) => {
   const hashPassword = await bcrypt.hash(password, 10);
   user = await User.create({
     ...body,
-    avatarUrl: DEFAULT_AVATAR_URL,
     password: hashPassword,
-    balance: NEW_BALANCE_VALUE,
   });
 
   user = await refreshUserToken(user._id);
@@ -55,6 +50,16 @@ const login = async (req, res) => {
   const { accessToken, refreshToken } = user;
 
   res.json({ accessToken, refreshToken, user: selectUserInfo(user) });
+};
+
+const googleAuth = async (req, res) => {
+  const { _id: userId } = req.user;
+
+  const { accessToken, refreshToken } = await refreshUserToken(userId);
+
+  res.redirect(
+    `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}`
+  );
 };
 
 const logout = async (req, res) => {
@@ -165,7 +170,7 @@ const removeUserToken = userId => setUserToken(userId, '', '');
 const refreshUserToken = async userId => {
   const tokenPayload = { id: userId };
   const accessToken = jwt.sign(tokenPayload, ACCESS_SECRET_KEY, {
-    expiresIn: '2m',
+    expiresIn: '5m',
   });
   const refreshToken = jwt.sign(tokenPayload, REFRESH_SECRET_KEY, {
     expiresIn: '7d',
@@ -177,6 +182,7 @@ const refreshUserToken = async userId => {
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
+  googleAuth: ctrlWrapper(googleAuth),
   logout: ctrlWrapper(logout),
   refresh: ctrlWrapper(refresh),
   getCurrent: ctrlWrapper(getCurrent),

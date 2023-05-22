@@ -4,6 +4,7 @@ const ctrl = require('../../controllers/auth');
 
 const {
   authenticate,
+  googlePassport,
   validateBody,
   uploadCloud,
 } = require('../../middlewares');
@@ -11,6 +12,17 @@ const {
 const { schemas } = require('../../models/user');
 
 const router = Router();
+
+router.get(
+  '/google',
+  googlePassport.authenticate('google', { scope: ['email', 'profile'] })
+);
+
+router.get(
+  '/google/callback',
+  googlePassport.authenticate('google', { session: false }),
+  ctrl.googleAuth
+);
 
 router.post('/register', validateBody(schemas.registerParams), ctrl.register);
 

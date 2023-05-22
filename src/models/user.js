@@ -8,6 +8,8 @@ const NAME_LENGTH = 32;
 const PHONE_LENGTH = 20;
 const PHONE_PATTERN = /^\+\d{12}$/;
 const PHONE_PATTERN_MESSAGE = 'Phone must start with + and contain 12 digits';
+const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
+const NEW_BALANCE_VALUE = 50;
 
 // Mongoose schema:
 
@@ -28,7 +30,7 @@ const usersSchema = new Schema(
     },
     avatarUrl: {
       type: String,
-      required: [true, 'Avatar URL is required'],
+      default: DEFAULT_AVATAR_URL,
     },
     birthday: {
       type: Date,
@@ -44,6 +46,7 @@ const usersSchema = new Schema(
     },
     balance: {
       type: Number,
+      default: NEW_BALANCE_VALUE,
     },
     accessToken: {
       type: String,
