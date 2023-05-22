@@ -38,21 +38,22 @@ const get = async (req, res) => {
       const dateFrom = subDate(new Date(), { years: fullYears + 1 });
       const dateUntil = subDate(new Date(), { years: fullYears });
 
-      const dateRangeCondition = {
-        $and: [
-          { birthday: { $gte: dateFrom } },
-          { birthday: { $lt: dateUntil } },
-        ],
-      };
+      const dateRangeCondition =
+        fullYears <= 1
+          ? {
+              $and: [
+                { birthday: { $gte: dateFrom } },
+                { birthday: { $lt: dateUntil } },
+              ],
+            }
+          : {
+              birthday: { $lt: dateUntil },
+            };
 
       return dateRangeCondition;
     });
 
-    if (age.length === 1) {
-      filter.$and = ageFilter[0].$and;
-    } else {
-      filter.$or = ageFilter;
-    }
+    filter.$or = ageFilter;
   }
 
   const totalResults = await Notice.find(filter).count();

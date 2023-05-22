@@ -139,8 +139,12 @@ const getParams = Joi.object({
     .empty(''),
   location: Joi.string().empty(''),
   age: Joi.alternatives().try(
-    Joi.array().items(Joi.number()).max(5),
-    customJoi.stringArray().items(Joi.number(), Joi.strip()).max(5).sparse()
+    Joi.array().items(Joi.number().min(0).max(2)).max(3),
+    customJoi
+      .stringArray()
+      .items(Joi.number().min(0).max(2), Joi.strip())
+      .max(3)
+      .sparse()
   ),
   favorite: Joi.boolean().empty(''),
   own: Joi.boolean().empty(''),
