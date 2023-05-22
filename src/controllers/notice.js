@@ -109,6 +109,11 @@ const add = async (req, res) => {
   }
 
   const notice = (await Notice.create({ ...body, owner: userId })).toObject();
+
+  if (promo) {
+    await User.findByIdAndUpdate(userId, { $inc: { balance: -promo } });
+  }
+
   res.status(201).json(formatNotice(notice, userId));
 };
 
