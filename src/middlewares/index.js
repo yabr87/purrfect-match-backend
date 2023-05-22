@@ -4,6 +4,7 @@ const validateId = require('./validateId');
 const uploadCloud = require('./uploadCloud');
 const authenticate = require('./authenticate');
 const tryAuthenticate = require('./tryAuthenticate');
+const googlePassport = require('./googlePassport');
 
 module.exports = {
   validateBody,
@@ -12,4 +13,5 @@ module.exports = {
   uploadCloud,
   authenticate,
   tryAuthenticate,
+  googlePassport,
 };
