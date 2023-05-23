@@ -53,12 +53,13 @@ const login = async (req, res) => {
 };
 
 const googleAuth = async (req, res) => {
-  const { _id: userId } = req.user;
-
+  const { _id: userId, isNewUser } = req.user;
   const { accessToken, refreshToken } = await refreshUserToken(userId);
 
   res.redirect(
-    `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    `${FRONTEND_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}${
+      isNewUser ? '&newUser=true' : ''
+    }`
   );
 };
 

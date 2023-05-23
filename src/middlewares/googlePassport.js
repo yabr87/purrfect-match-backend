@@ -3,7 +3,7 @@ const { Strategy } = require('passport-google-oauth2');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const { User } = require('../models/user');
+const { User, constants } = require('../models/user');
 
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL, PORT } = process.env;
 
@@ -22,7 +22,11 @@ const googleCallback = async (
   done
 ) => {
   try {
-    const { email, displayName = 'User' } = profile;
+    const {
+      email,
+      displayName: name = 'User',
+      picture: avatarUrl = constants.DEFAULT_AVATAR_URL,
+    } = profile;
     const user = await User.findOne({ email });
     if (user) {
       return done(null, user);
@@ -31,7 +35,15 @@ const googleCallback = async (
       crypto.randomBytes(50).toString('base64'),
       10
     );
-    const newUser = await User.create({ email, password, name: displayName });
+    const newUser = (
+      await User.create({
+        email,
+        password,
+        avatarUrl,
+        name,
+      })
+    ).toObject();
+    newUser.isNewUser = true;
     done(null, newUser);
   } catch (error) {
     done(error, false);
