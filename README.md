@@ -1,3 +1,3 @@
 # purrfect-match-backend
 
-npm run dev
+https://purrfect-match.onrender.com/api-docs/
