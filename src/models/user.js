@@ -124,7 +124,12 @@ const schemas = {
   avatarConfig,
 };
 
+const constants = {
+  DEFAULT_AVATAR_URL,
+};
+
 module.exports = {
   User,
   schemas,
+  constants,
 };
