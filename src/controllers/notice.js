@@ -34,23 +34,13 @@ const get = async (req, res) => {
   }
 
   if (age?.length > 0) {
-    const ageFilter = age.map(fullYears => {
-      const dateFrom = subDate(new Date(), { years: fullYears + 1 });
-      const dateUntil = subDate(new Date(), { years: fullYears });
+    const ageFilter = age.map(ageOption => {
+      const dateFrom = subDate(new Date(), { years: ageOption + 1 });
+      const dateUntil = subDate(new Date(), { years: ageOption });
 
-      const dateRangeCondition =
-        fullYears <= 1
-          ? {
-              $and: [
-                { birthday: { $gte: dateFrom } },
-                { birthday: { $lt: dateUntil } },
-              ],
-            }
-          : {
-              birthday: { $lt: dateUntil },
-            };
-
-      return dateRangeCondition;
+      return ageOption <= 1
+        ? { birthday: { $gte: dateFrom, $lt: dateUntil } }
+        : { birthday: { $lt: dateUntil } };
     });
 
     filter.$or = ageFilter;
