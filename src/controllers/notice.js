@@ -10,27 +10,36 @@ const { NOTICE_CATEGORIES } = require('../models/notice').constants;
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
-  const { page = 1, limit = 12, favorite, own, title, age, ...filter } = query;
+  const { page = 1, limit = 12, category, title, age, ...filter } = query;
+  let { favorite, own } = query;
   const skip = (page - 1) * limit;
 
-  if (title) {
-    filter.title = { $regex: title, $options: 'i' };
+  if (category === 'favorite') {
+    favorite = true;
   }
 
-  if (own !== undefined) {
-    if (!userId) {
-      throw new HttpError(401);
-    }
-    filter.owner = own ? userId : { $ne: userId };
+  if (category === 'own') {
+    own = true;
+  }
+
+  if (!userId && (favorite !== undefined || own !== undefined)) {
+    throw new HttpError(401);
+  }
+
+  if (NOTICE_CATEGORIES.includes(category)) {
+    filter.category = category;
   }
 
   if (favorite !== undefined) {
-    if (!userId) {
-      throw new HttpError(401);
-    }
-    filter.favorites = favorite
-      ? { $all: [userId] }
-      : { $not: { $all: [userId] } };
+    filter.favorites = favorite ? userId : { $ne: userId };
+  }
+
+  if (own !== undefined) {
+    filter.owner = own ? userId : { $ne: userId };
+  }
+
+  if (title) {
+    filter.title = { $regex: title, $options: 'i' };
   }
 
   if (age?.length > 0) {
