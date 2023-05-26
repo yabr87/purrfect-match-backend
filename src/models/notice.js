@@ -131,7 +131,7 @@ const updateParams = Joi.object({
 
 const getParams = Joi.object({
   category: Joi.string()
-    .valid(...NOTICE_CATEGORIES_LIST)
+    .valid(...NOTICE_CATEGORIES_LIST, 'favorite', 'own')
     .empty(''),
   title: Joi.string().empty(''),
   sex: Joi.string()
@@ -146,8 +146,12 @@ const getParams = Joi.object({
       .max(3)
       .sparse()
   ),
-  favorite: Joi.boolean().empty(''),
-  own: Joi.boolean().empty(''),
+  favorite: Joi.boolean()
+    .empty('')
+    .when('category', { is: 'favorite', then: Joi.forbidden() }),
+  own: Joi.boolean()
+    .empty('')
+    .when('category', { is: 'own', then: Joi.forbidden() }),
   page: Joi.number().integer().min(1).empty(''),
   limit: Joi.number().integer().min(1).max(100).empty(''),
 });
@@ -170,7 +174,7 @@ const schemas = {
   photoConfig,
 };
 
-const constants = { NOTICE_CATEGORIES };
+const constants = { NOTICE_CATEGORIES, NOTICE_CATEGORIES_LIST };
 
 module.exports = {
   Notice,

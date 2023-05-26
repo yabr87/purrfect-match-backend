@@ -3,8 +3,8 @@ const logger = require('morgan');
 const cors = require('cors');
 
 const authRouter = require('./routes/api/auth');
-const noticeRouter = require('./routes/api/notice');
-const petRouter = require('./routes/api/pet');
+const noticesRouter = require('./routes/api/notices');
+const petsRouter = require('./routes/api/pets');
 const newsRouter = require('./routes/api/news');
 const ourFriends = require('./routes/api/friends');
 
@@ -24,8 +24,8 @@ app.use(express.static('public'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/users', authRouter);
-app.use('/api/notices', noticeRouter);
-app.use('/api/pets', petRouter);
+app.use('/api/notices', noticesRouter);
+app.use('/api/pets', petsRouter);
 app.use('/api/news', newsRouter);
 app.use('/api/friends', ourFriends);
 

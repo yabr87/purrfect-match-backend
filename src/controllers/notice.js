@@ -5,56 +5,93 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Notice } = require('../models/notice');
 const { User } = require('../models/user');
-const { NOTICE_CATEGORIES } = require('../models/notice').constants;
+const { NOTICE_CATEGORIES, NOTICE_CATEGORIES_LIST } =
+  require('../models/notice').constants;
 
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
-  const { page = 1, limit = 12, favorite, own, title, age, ...filter } = query;
+  const {
+    page = 1,
+    limit = 12,
+    category,
+    title,
+    age,
+    own,
+    favorite,
+    ...filter
+  } = query;
   const skip = (page - 1) * limit;
+
+  const isOwn = category === 'own' || own;
+  const isFavorite = category === 'favorite' || favorite;
+
+  if (isFavorite !== undefined) {
+    if (!userId) {
+      throw new HttpError(401);
+    }
+
+    filter.favorites = isFavorite ? userId : { $ne: userId };
+  }
+
+  if (isOwn !== undefined) {
+    if (!userId) {
+      throw new HttpError(401);
+    }
+
+    filter.owner = isOwn ? userId : { $ne: userId };
+  }
+
+  if (NOTICE_CATEGORIES_LIST.includes(category)) {
+    filter.category = category;
+  }
 
   if (title) {
     filter.title = { $regex: title, $options: 'i' };
   }
 
-  if (own !== undefined) {
-    if (!userId) {
-      throw new HttpError(401);
-    }
-    filter.owner = own ? userId : { $ne: userId };
-  }
-
-  if (favorite !== undefined) {
-    if (!userId) {
-      throw new HttpError(401);
-    }
-    filter.favorites = favorite
-      ? { $all: [userId] }
-      : { $not: { $all: [userId] } };
-  }
-
   if (age?.length > 0) {
-    const ageFilter = age.map(fullYears => {
-      const dateFrom = subDate(new Date(), { years: fullYears + 1 });
-      const dateUntil = subDate(new Date(), { years: fullYears });
+    const ageFilter = age.map(ageOption => {
+      const dateFrom = subDate(new Date(), { years: ageOption + 1 });
+      const dateUntil = subDate(new Date(), { years: ageOption });
 
-      const dateRangeCondition =
-        fullYears <= 1
-          ? {
-              $and: [
-                { birthday: { $gte: dateFrom } },
-                { birthday: { $lt: dateUntil } },
-              ],
-            }
-          : {
-              birthday: { $lt: dateUntil },
-            };
-
-      return dateRangeCondition;
+      return ageOption <= 1
+        ? { birthday: { $gte: dateFrom, $lt: dateUntil } }
+        : { birthday: { $lt: dateUntil } };
     });
 
     filter.$or = ageFilter;
   }
+
+  /*
+  Alternative complex query to MongoDb:
+
+  db.notices.aggregate([
+    { $match: filter },
+    { $sort: { promoDate: -1 } },
+    {
+      $facet: {
+        results: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $addFields: {
+              own: { $eq: ['$owner', ObjectId(userId)] },
+              favorite: { $in: [ObjectId(userId), '$favorites'] },
+            },
+          },
+          {
+            $project: { owner: 0, favorites: 0 },
+          },
+        ],
+        totalResults: [{ $count: 'count' }],
+      },
+    },
+    {
+      $project: { results: 1, totalResults: '$totalResults.count' },
+    },
+  ]);
+*/
 
   const totalResults = await Notice.find(filter).count();
   const notices = await Notice.find(filter, null, {
