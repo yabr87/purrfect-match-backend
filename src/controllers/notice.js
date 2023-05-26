@@ -55,6 +55,36 @@ const get = async (req, res) => {
     filter.$or = ageFilter;
   }
 
+  /*
+  Alternative complex query to MongoDb:
+
+  db.notices.aggregate([
+    { $match: filter },
+    { $sort: { promoDate: -1 } },
+    {
+      $facet: {
+        results: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $addFields: {
+              own: { $eq: ['$owner', ObjectId(userId)] },
+              favorite: { $in: [ObjectId(userId), '$favorites'] },
+            },
+          },
+          {
+            $project: { owner: 0, favorites: 0 },
+          },
+        ],
+        totalResults: [{ $count: 'count' }],
+      },
+    },
+    {
+      $project: { results: 1, totalResults: '$totalResults.count' },
+    },
+  ]);
+*/
+
   const totalResults = await Notice.find(filter).count();
   const notices = await Notice.find(filter, null, {
     skip,
