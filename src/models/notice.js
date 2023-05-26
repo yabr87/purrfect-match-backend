@@ -174,7 +174,7 @@ const schemas = {
   photoConfig,
 };
 
-const constants = { NOTICE_CATEGORIES };
+const constants = { NOTICE_CATEGORIES, NOTICE_CATEGORIES_LIST };
 
 module.exports = {
   Notice,

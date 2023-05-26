@@ -5,37 +5,45 @@ const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
 
 const { Notice } = require('../models/notice');
 const { User } = require('../models/user');
-const { NOTICE_CATEGORIES } = require('../models/notice').constants;
+const { NOTICE_CATEGORIES, NOTICE_CATEGORIES_LIST } =
+  require('../models/notice').constants;
 
 const get = async (req, res) => {
   const { user: { _id: userId } = {}, query } = req;
 
-  const { page = 1, limit = 12, category, title, age, ...filter } = query;
-  let { favorite, own } = query;
+  const {
+    page = 1,
+    limit = 12,
+    category,
+    title,
+    age,
+    own,
+    favorite,
+    ...filter
+  } = query;
   const skip = (page - 1) * limit;
 
-  if (category === 'favorite') {
-    favorite = true;
+  const isOwn = category === 'own' || own;
+  const isFavorite = category === 'favorite' || favorite;
+
+  if (isFavorite !== undefined) {
+    if (!userId) {
+      throw new HttpError(401);
+    }
+
+    filter.favorites = isFavorite ? userId : { $ne: userId };
   }
 
-  if (category === 'own') {
-    own = true;
+  if (isOwn !== undefined) {
+    if (!userId) {
+      throw new HttpError(401);
+    }
+
+    filter.owner = isOwn ? userId : { $ne: userId };
   }
 
-  if (!userId && (favorite !== undefined || own !== undefined)) {
-    throw new HttpError(401);
-  }
-
-  if (NOTICE_CATEGORIES.includes(category)) {
+  if (NOTICE_CATEGORIES_LIST.includes(category)) {
     filter.category = category;
-  }
-
-  if (favorite !== undefined) {
-    filter.favorites = favorite ? userId : { $ne: userId };
-  }
-
-  if (own !== undefined) {
-    filter.owner = own ? userId : { $ne: userId };
   }
 
   if (title) {
