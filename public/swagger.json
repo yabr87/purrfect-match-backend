@@ -3,7 +3,7 @@
   "info": {
     "title": "GoIT Final team project",
     "description": "GoIT Final team project",
-    "version": "1.5.1",
+    "version": "1.6.0",
     "contact": {
       "name": "Yaroslav Bernatovych",
       "url": "https://github.com/yabr87"
@@ -37,6 +37,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/LoginResponse"
                 }
+              }
+            },
+            "links": {
+              "RefreshTokens": {
+                "$ref": "#/components/links/RefreshTokens"
               }
             }
           },
@@ -78,6 +83,11 @@
                   "$ref": "#/components/schemas/LoginResponse"
                 }
               }
+            },
+            "links": {
+              "RefreshTokens": {
+                "$ref": "#/components/links/RefreshTokens"
+              }
             }
           },
           "400": {
@@ -101,8 +111,8 @@
     },
     "/api/users/refresh": {
       "post": {
-        "operationId": "refreshUser",
-        "summary": "Refresh access token and return brief user info",
+        "operationId": "refreshTokens",
+        "summary": "Refresh access and refresh tokens",
         "tags": [
           "Auth"
         ],
@@ -111,18 +121,56 @@
             "BearerAuth": []
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "format": "JWT",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                  }
+                },
+                "required": [
+                  "refreshToken"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Token refreshed successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "format": "jwt",
+                      "description": "Authorization token",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "format": "jwt",
+                      "description": "Authorization token",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                    }
+                  }
                 }
+              }
+            },
+            "links": {
+              "RefreshTokens": {
+                "$ref": "#/components/links/RefreshTokens"
               }
             }
           },
-          "401": {
+          "403": {
             "$ref": "#/components/responses/UnauthorizedError"
           }
         }
@@ -285,6 +333,36 @@
         }
       }
     },
+    "/api/users/google": {
+      "get": {
+        "operationId": "authByGoogle",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Redirect to Google to authenticate user",
+        "description": "Redirect user to google authentication page. After authentication user will be redirected back to the site",
+        "responses": {
+          "302": {
+            "description": "Successfully redirected"
+          }
+        }
+      }
+    },
+    "/api/users/google/callback": {
+      "get": {
+        "operationId": "authByGoogleCallback",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Google authentication callback",
+        "description": "This is a callback endpoint for google authentication service. User will be redirected here after authentication",
+        "responses": {
+          "302": {
+            "description": "User will be redirected to the web site, e.g. https://base-site-url/login?accessToken=JWT&refreshToken=JWT&newUser=true newUser is an optional parameter that is attached only if user is a new registered user\n"
+          }
+        }
+      }
+    },
     "/api/notices": {
       "get": {
         "operationId": "getNotices",
@@ -292,6 +370,7 @@
           "Notices"
         ],
         "summary": "Get notices.",
+        "description": "Get notices list depending on query parameters. In order to get favorite or own notices user must be authorized",
         "security": [
           {
             "BearerAuth": []
@@ -306,7 +385,9 @@
               "enum": [
                 "sell",
                 "lost-found",
-                "for-free"
+                "for-free",
+                "favorite",
+                "own"
               ]
             }
           },
@@ -331,17 +412,20 @@
           {
             "name": "age",
             "in": "query",
-            "description": "Full years. Can be used like \"age=1&age=2\" or like \"age=1,2\"",
+            "description": "Can be used like `age=0&age=1` or like `age=0,1`. Option 0: less than 1 year old. Option 1: one year old. Option 2: two years and older.\n",
             "schema": {
               "type": "array",
               "items": {
-                "type": "integer"
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2
               }
             }
           },
           {
             "name": "favorite",
             "in": "query",
+            "description": "If category = favorite, parameter `favorite` is forbidden",
             "schema": {
               "type": "boolean"
             }
@@ -349,6 +433,7 @@
           {
             "name": "own",
             "in": "query",
+            "description": "If category = own, parameter `own` is forbidden",
             "schema": {
               "type": "boolean"
             }
@@ -357,14 +442,17 @@
             "name": "page",
             "in": "query",
             "schema": {
-              "type": "number"
+              "type": "integer",
+              "minimum": 1
             }
           },
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "number"
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             }
           }
         ],
@@ -377,15 +465,15 @@
                   "type": "object",
                   "properties": {
                     "totalResults": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "page": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "totalPages": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "results": {
@@ -407,6 +495,7 @@
           "Notices"
         ],
         "summary": "Add new notice",
+        "description": "Add a notice to notices collection",
         "security": [
           {
             "BearerAuth": []
@@ -423,7 +512,23 @@
         },
         "responses": {
           "201": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notice"
+                }
+              }
+            },
+            "links": {
+              "GetNoticeById": {
+                "operationId": "getNoticeById",
+                "description": "The `_id` value returned in the response can be used as the `noticeId` parameter in `GET api/notices/{noticeId}`.\n",
+                "parameters": {
+                  "noticeId": "$response.body#/_id"
+                }
+              }
+            }
           },
           "400": {
             "$ref": "#/components/responses/ValidationError"
@@ -458,7 +563,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoticeWithOwner"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -677,14 +789,14 @@
             "name": "page",
             "in": "query",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           },
           {
             "name": "limit",
             "in": "query",
             "schema": {
-              "type": "number"
+              "type": "integer"
             }
           }
         ],
@@ -697,15 +809,15 @@
                   "type": "object",
                   "properties": {
                     "totalResults": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "page": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "totalPages": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 1
                     },
                     "results": {
@@ -923,7 +1035,13 @@
       "LoginResponse": {
         "type": "object",
         "properties": {
-          "token": {
+          "accessToken": {
+            "type": "string",
+            "format": "jwt",
+            "description": "Authorization token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+          },
+          "refreshToken": {
             "type": "string",
             "format": "jwt",
             "description": "Authorization token",
@@ -934,7 +1052,8 @@
           }
         },
         "required": [
-          "token",
+          "accessToken",
+          "refreshToken",
           "user"
         ]
       },
@@ -1020,9 +1139,38 @@
           "price": 120,
           "comments": "Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too!",
           "favorite": true,
-          "own": false,
-          "promo": 2
+          "own": false
         }
+      },
+      "NoticeWithOwner": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Notice"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "owner": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "example": {
+              "owner": {
+                "email": "user@mail.com",
+                "phone": "+380664123214"
+              }
+            }
+          }
+        ]
       },
       "Pet": {
         "type": "object",
@@ -1088,6 +1236,7 @@
                 "password": {
                   "type": "string",
                   "format": "password",
+                  "pattern": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])",
                   "minLength": 6,
                   "maxLength": 16,
                   "description": "User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit."
@@ -1144,6 +1293,15 @@
               "message": "Not found"
             }
           }
+        }
+      }
+    },
+    "links": {
+      "RefreshTokens": {
+        "operationId": "refreshTokens",
+        "description": "The `refreshToken` returned in the response is used in requestBody in `POST /api/users/refresh`",
+        "requestBody": {
+          "refreshToken": "$response.body#/refreshToken"
         }
       }
     },
