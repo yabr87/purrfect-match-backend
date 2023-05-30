@@ -1,5 +1,5 @@
-const verifyEmail = require('./verifyEmail');
+const verificationEmail = require('./verificationEmail');
 
 module.exports = {
-  verifyEmail,
+  verificationEmail,
 };
