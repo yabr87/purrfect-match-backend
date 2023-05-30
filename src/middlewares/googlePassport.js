@@ -43,6 +43,7 @@ const googleCallback = async (
         avatarUrl,
         name,
         verified,
+        balance: verified ? constants.NEW_BALANCE_VALUE : 0,
       })
     ).toObject();
     newUser.isNewUser = true;

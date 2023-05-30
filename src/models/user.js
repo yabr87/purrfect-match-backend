@@ -48,7 +48,7 @@ const usersSchema = new Schema(
     },
     balance: {
       type: Number,
-      default: NEW_BALANCE_VALUE,
+      default: 0,
     },
     accessToken: {
       type: String,
@@ -149,6 +149,7 @@ const schemas = {
 
 const constants = {
   DEFAULT_AVATAR_URL,
+  NEW_BALANCE_VALUE,
 };
 
 module.exports = {

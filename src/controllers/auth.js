@@ -11,7 +11,7 @@ const {
 
 const verificationEmail = require('../templates/verificationEmail');
 
-const { User } = require('../models/user');
+const { User, constants } = require('../models/user');
 
 const { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL } = process.env;
 
@@ -241,6 +241,7 @@ const verifyOtp = async ({ verificationToken, otp }) => {
   }
 
   user.verified = true;
+  user.balance += constants.NEW_BALANCE_VALUE;
   const { verified } = await user.save();
   return verified;
 };
