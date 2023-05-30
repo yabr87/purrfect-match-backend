@@ -74,7 +74,7 @@ const refresh = async (req, res) => {
     const { id } = jwt.verify(body.refreshToken, REFRESH_SECRET_KEY);
     let user = await User.findById(id, 'refreshToken');
     if (!user || user.refreshToken !== body.refreshToken) {
-      throw new HttpError(403, 'Invalid token');
+      throw new HttpError(403, 'Invalid refresh token');
     }
 
     user = await refreshUserToken(id);
@@ -85,7 +85,7 @@ const refresh = async (req, res) => {
       refreshToken,
     });
   } catch (error) {
-    throw new HttpError(403, 'Invalid token');
+    throw new HttpError(403, 'Invalid refresh token');
   }
 };
 

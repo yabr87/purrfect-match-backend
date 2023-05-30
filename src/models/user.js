@@ -2,13 +2,15 @@ const { Schema, model } = require('mongoose');
 const Joi = require('joi');
 const handleMongooseError = require('../helpers/handleMongooseError');
 
+const { BASE_URL } = process.env;
+
 const PASSWORD_MIN_LENGTH = 6;
 const PASSWORD_MAX_LENGTH = 16;
 const NAME_LENGTH = 32;
 const PHONE_LENGTH = 20;
 const PHONE_PATTERN = /^\+\d{12}$/;
 const PHONE_PATTERN_MESSAGE = 'Phone must start with + and contain 12 digits';
-const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
+const DEFAULT_AVATAR_URL = `${BASE_URL}/avatars/avatar.jpg`;
 const NEW_BALANCE_VALUE = 50;
 
 // Mongoose schema:
@@ -108,7 +110,7 @@ const refreshParams = Joi.object({
 
 const updateParams = Joi.object({
   name: Joi.string().trim().max(NAME_LENGTH),
-  email: Joi.string().trim().lowercase().email().trim(),
+  email: Joi.string().trim().lowercase().email(),
   birthday: Joi.date().iso().less('now'),
   city: Joi.string(),
   phone: Joi.string().trim().max(PHONE_LENGTH).pattern(PHONE_PATTERN).messages({
