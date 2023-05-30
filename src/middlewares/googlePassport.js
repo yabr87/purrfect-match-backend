@@ -26,6 +26,7 @@ const googleCallback = async (
       email,
       displayName: name = 'User',
       picture: avatarUrl = constants.DEFAULT_AVATAR_URL,
+      email_verified: verified,
     } = profile;
     const user = await User.findOne({ email });
     if (user) {
@@ -41,6 +42,7 @@ const googleCallback = async (
         password,
         avatarUrl,
         name,
+        verified,
       })
     ).toObject();
     newUser.isNewUser = true;

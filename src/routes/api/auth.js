@@ -6,6 +6,7 @@ const {
   authenticate,
   googlePassport,
   validateBody,
+  validateQuery,
   uploadCloud,
 } = require('../../middlewares');
 
@@ -27,6 +28,20 @@ router.get(
 router.post('/register', validateBody(schemas.registerParams), ctrl.register);
 
 router.post('/login', validateBody(schemas.loginParams), ctrl.login);
+
+router.post(
+  '/request-verification',
+  validateBody(schemas.requestVerificationParams),
+  ctrl.requestVerification
+);
+
+router.get(
+  '/verify',
+  validateQuery(schemas.verifyParams),
+  ctrl.verifyAndRedirect
+);
+
+router.post('/verify', validateBody(schemas.verifyParams), ctrl.verify);
 
 router.post('/logout', authenticate, ctrl.logout);
 

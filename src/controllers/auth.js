@@ -1,7 +1,15 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
-const { ctrlWrapper, HttpError, removeFromCloud } = require('../helpers');
+const {
+  ctrlWrapper,
+  HttpError,
+  removeFromCloud,
+  sendEmail,
+} = require('../helpers');
+
+const verificationEmail = require('../templates/verificationEmail');
 
 const { User } = require('../models/user');
 
@@ -11,7 +19,7 @@ const { ACCESS_SECRET_KEY, REFRESH_SECRET_KEY, FRONTEND_URL } = process.env;
 
 const register = async (req, res) => {
   const { body } = req;
-  const { email, password } = body;
+  const { email, password, lang } = body;
   let user = await User.findOne({ email });
 
   if (user) {
@@ -26,10 +34,13 @@ const register = async (req, res) => {
 
   user = await refreshUserToken(user._id);
   const { accessToken, refreshToken } = user;
-
-  res
-    .status(201)
-    .json({ accessToken, refreshToken, user: selectUserInfo(user) });
+  const verificationToken = await sendVerificationEmail(user, lang);
+  res.status(201).json({
+    accessToken,
+    refreshToken,
+    verificationToken,
+    user: selectUserInfo(user),
+  });
 };
 
 const login = async (req, res) => {
@@ -61,6 +72,36 @@ const googleAuth = async (req, res) => {
       isNewUser ? '&newUser=true' : ''
     }`
   );
+};
+
+const requestVerification = async (req, res) => {
+  const { email, lang } = req.body;
+  const user = await User.findOne({ email });
+  if (!user || user.verified) {
+    throw new HttpError(400, "Email isn't registered or unverified");
+  }
+
+  const verificationToken = await sendVerificationEmail(user, lang);
+  res.json({ verificationToken });
+};
+
+const verify = async (req, res) => {
+  const verified = await verifyOtp(req.body);
+
+  res.json({ verified });
+};
+
+const verifyAndRedirect = async (req, res) => {
+  let message = null;
+  try {
+    const verified = await verifyOtp(req.query);
+    message = verified
+      ? 'Email successfully verified'
+      : 'Email verification failed';
+  } catch (error) {
+    message = error.message;
+  }
+  res.redirect(`${FRONTEND_URL}?message=${message}`);
 };
 
 const logout = async (req, res) => {
@@ -182,10 +223,59 @@ const refreshUserToken = async userId => {
   return setUserToken(userId, accessToken, refreshToken);
 };
 
+const verifyOtp = async ({ verificationToken, otp }) => {
+  let id = null;
+  try {
+    id = jwt.verify(verificationToken, ACCESS_SECRET_KEY).id;
+  } catch {
+    throw new HttpError(400, 'Invalid or expired verificationToken');
+  }
+  const user = await User.findByIdAndUpdate(id, { otp: '' });
+  if (!user) {
+    throw new HttpError(400, "User wasn't fount");
+  }
+
+  const isOtpValid = user.otp && (await bcrypt.compare(otp, user.otp));
+  if (!isOtpValid) {
+    throw new HttpError(400, 'Wrong password');
+  }
+
+  user.verified = true;
+  const { verified } = await user.save();
+  return verified;
+};
+
+const sendVerificationEmail = async (user, lang) => {
+  const otp = crypto.randomInt(1000000).toString().padStart(6, '0');
+  // or something like this:
+  // const otp = crypto.randomBytes(4).toString('base64url');
+  const hashedOpt = await bcrypt.hash(otp, 10);
+  user.otp = hashedOpt;
+  await user.save();
+  const tokenPayload = { id: user._id };
+  const verificationToken = jwt.sign(tokenPayload, ACCESS_SECRET_KEY, {
+    expiresIn: '5m',
+  });
+  const validUntil = new Date(jwt.decode(verificationToken).exp * 1000);
+  const emailMessage = verificationEmail(
+    user.email,
+    lang,
+    verificationToken,
+    otp,
+    validUntil
+  );
+  await sendEmail(emailMessage);
+
+  return verificationToken;
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   googleAuth: ctrlWrapper(googleAuth),
+  requestVerification: ctrlWrapper(requestVerification),
+  verify: ctrlWrapper(verify),
+  verifyAndRedirect: ctrlWrapper(verifyAndRedirect),
   logout: ctrlWrapper(logout),
   refresh: ctrlWrapper(refresh),
   getCurrent: ctrlWrapper(getCurrent),

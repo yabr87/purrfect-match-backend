@@ -90,6 +90,7 @@ const registerParams = Joi.object({
     .pattern(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/)
     .messages({ 'any.required': 'missing required "password" field' }),
   confirmPassword: Joi.string().valid(Joi.ref('password')).strip(),
+  lang: Joi.string().valid('ukr', 'en').default('en'),
 });
 
 const loginParams = Joi.object({
@@ -120,6 +121,16 @@ const updateParams = Joi.object({
 // .min(1)
 // .messages({ 'object.min': 'missing fields' });
 
+const requestVerificationParams = Joi.object({
+  email: Joi.string().trim().lowercase().email().required(),
+  lang: Joi.string().valid('ukr', 'en').default('en'),
+});
+
+const verifyParams = Joi.object({
+  verificationToken: Joi.string().required(),
+  otp: Joi.string().trim().required(),
+});
+
 const avatarConfig = {
   field: 'avatar',
   folder: 'avatars',
@@ -132,6 +143,8 @@ const schemas = {
   refreshParams,
   updateParams,
   avatarConfig,
+  requestVerificationParams,
+  verifyParams,
 };
 
 const constants = {
