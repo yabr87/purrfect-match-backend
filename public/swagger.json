@@ -3,7 +3,7 @@
   "info": {
     "title": "GoIT Final team project",
     "description": "GoIT Final team project",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "contact": {
       "name": "Yaroslav Bernatovych",
       "url": "https://github.com/yabr87"
@@ -25,7 +25,7 @@
           "Auth"
         ],
         "summary": "Register new user",
-        "description": "Register new user",
+        "description": "Register new user. Send email with verification credentials.",
         "requestBody": {
           "$ref": "#/components/requestBodies/Credentials"
         },
@@ -35,7 +35,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/LoginResponse"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "verificationToken": {
+                          "type": "string",
+                          "format": "JWT",
+                          "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             },
@@ -71,6 +85,7 @@
           "Auth"
         ],
         "summary": "Login registered user",
+        "description": "Login registered user",
         "requestBody": {
           "$ref": "#/components/requestBodies/Credentials"
         },
@@ -109,10 +124,164 @@
         }
       }
     },
+    "/api/users/request-verification": {
+      "post": {
+        "operationId": "requestVerification",
+        "summary": "Request email verification",
+        "description": "Request email verification. Send email with verification credentials.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@mail.com"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "ukr"
+                    ],
+                    "example": "ukr"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification email successfully sent.   Verification email contains:  1) a link to the Purrfect match website `https://frontend-url/login?verificationToken=verificationToken&otp=otp` 2) a similar link to the backend  3) a one time password.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "verificationToken": {
+                      "type": "string",
+                      "format": "JWT",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc"
+                    }
+                  },
+                  "required": [
+                    "verificationToken"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/users/verify": {
+      "get": {
+        "operationId": "verifyEmailAndRedirect",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verify email",
+        "description": "Verify email and redirect to the Purrfect match website",
+        "parameters": [
+          {
+            "name": "verificationToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "JWT"
+            }
+          },
+          {
+            "name": "otp",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to the Purrfect match website. Redirect link looks like `https://frontend-url/login?message=text-message"
+          }
+        }
+      },
+      "post": {
+        "operationId": "verifyEmail",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verify email",
+        "description": "Verify email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "verificationToken": {
+                    "type": "string",
+                    "format": "JWT"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "example": "398423"
+                  }
+                },
+                "required": [
+                  "verificationToken",
+                  "otp"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "verified": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  },
+                  "required": [
+                    "verified"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
     "/api/users/refresh": {
       "post": {
         "operationId": "refreshTokens",
         "summary": "Refresh access and refresh tokens",
+        "description": "Refresh access and refresh tokens",
         "tags": [
           "Auth"
         ],

@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: GoIT Final team project
   description: GoIT Final team project
-  version: 1.5.1
+  version: 1.7.0
   contact:
     name: Yaroslav Bernatovych
     url: https://github.com/yabr87
@@ -15,10 +15,9 @@ paths:
   /api/users/register:
     post:
       operationId: registerUser
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Register new user
-      description: Register new user
+      description: Register new user. Send email with verification credentials.
       requestBody: 
          $ref: '#/components/requestBodies/Credentials'
       responses:
@@ -27,7 +26,17 @@ paths:
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/LoginResponse'
+                allOf:
+                  - $ref: '#/components/schemas/LoginResponse'
+                  - type: object
+                    properties:
+                      verificationToken:
+                        type: string
+                        format: JWT
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+          links:
+            RefreshTokens:
+              $ref: '#/components/links/RefreshTokens'
         '400':
           $ref: '#/components/responses/ValidationError'
         '409':
@@ -42,9 +51,9 @@ paths:
   /api/users/login:
     post:
       operationId: loginUser
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Login registered user
+      description: Login registered user
       requestBody: 
          $ref: '#/components/requestBodies/Credentials'
       responses:
@@ -54,6 +63,9 @@ paths:
             application/json:
               schema: 
                 $ref: '#/components/schemas/LoginResponse'
+          links:
+            RefreshTokens:
+              $ref: '#/components/links/RefreshTokens'  
         '400':
           $ref: '#/components/responses/ValidationError'
         '401':
@@ -64,29 +76,151 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 message: Email or password is wrong  
-            
+  /api/users/request-verification:
+    post:
+      operationId: requestVerification
+      summary: Request email verification
+      description: Request email verification. Send email with verification credentials.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@mail.com
+                lang:
+                  type: string
+                  enum: [en, ukr]
+                  example: ukr
+              required: [email]
+      responses:
+        '200':
+          description: >
+            Verification email successfully sent.  
+            Verification email contains: 
+            1) a link to the Purrfect match website `https://frontend-url/login?verificationToken=verificationToken&otp=otp`
+            2) a similar link to the backend 
+            3) a one time password.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verificationToken:
+                    type: string
+                    format: JWT
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+                required: [verificationToken]
+        '400':
+          $ref: '#/components/responses/ValidationError'
+  /api/users/verify:
+    get:
+      operationId: verifyEmailAndRedirect
+      tags: [Auth]
+      summary: Verify email
+      description: Verify email and redirect to the Purrfect match website
+      parameters:
+        - name: verificationToken
+          in: query
+          required: true
+          schema:
+            type: string
+            format: JWT
+        - name: otp
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the Purrfect match website. Redirect link looks like `https://frontend-url/login?message=text-message
+    post:
+      operationId: verifyEmail
+      tags: [Auth]
+      summary: Verify email
+      description: Verify email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                verificationToken:
+                  type: string
+                  format: JWT
+                otp:
+                  type: string
+                  example: '398423'
+              required:
+                - verificationToken
+                - otp
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                    example: true
+                required: [verified]
+        '400':
+          $ref: '#/components/responses/ValidationError'
   /api/users/refresh:
     post:
-      operationId: refreshUser
-      summary: Refresh access token and return brief user info
-      tags:
-        - Auth
+      operationId: refreshTokens
+      summary: Refresh access and refresh tokens
+      description: Refresh access and refresh tokens
+      tags: [Auth]
       security:
         - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  format: JWT
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+              required: 
+                - refreshToken
       responses:
         '200':
           description: Token refreshed successfully
           content:
             application/json:
               schema: 
-                $ref: '#/components/schemas/LoginResponse'
-        '401':
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    format: jwt
+                    description: Authorization token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+                  refreshToken:
+                    type: string
+                    format: jwt
+                    description: Authorization token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+          links:
+            RefreshTokens:
+              $ref: '#/components/links/RefreshTokens'
+        '403':
           $ref: '#/components/responses/UnauthorizedError'
   /api/users/logout:
     post:
       operationId: logoutUser
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Log out current user
       security:
         - BearerAuth: []
@@ -99,8 +233,7 @@ paths:
   /api/users/current:
     get:
       operationId: getUserInfo
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Get current user info
       security:
         - BearerAuth: []
@@ -116,8 +249,7 @@ paths:
 
     patch:
       operationId: updateUserInfo
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Update current user info
       security:
         - BearerAuth: []
@@ -144,8 +276,7 @@ paths:
   /api/users/current/avatar:
     patch:
       operationId: updateUserAvatar
-      tags:
-        - Auth
+      tags: [Auth]
       summary: Update current user avatar
       description: Update current user avatar
       security: 
@@ -180,11 +311,32 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+  /api/users/google:
+    get:
+      operationId: authByGoogle
+      tags: [Auth]
+      summary: Redirect to Google to authenticate user
+      description: Redirect user to google authentication page. After authentication user will be redirected back to the site
+      responses:
+        '302':
+          description: Successfully redirected
+  /api/users/google/callback:
+    get:
+      operationId: authByGoogleCallback
+      tags: [Auth]
+      summary: Google authentication callback
+      description: This is a callback endpoint for google authentication service. User will be redirected here after authentication
+      responses:
+        '302':
+          description: >
+            User will be redirected to the web site, e.g. https://base-site-url/login?accessToken=JWT&refreshToken=JWT&newUser=true
+            newUser is an optional parameter that is attached only if user is a new registered user
   /api/notices:
     get:
       operationId: getNotices
       tags: [Notices]
       summary: Get notices.
+      description: Get notices list depending on query parameters. In order to get favorite or own notices user must be authorized
       security:
         - BearerAuth: []
       parameters:
@@ -192,7 +344,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [sell, lost-found, for-free]
+            enum: [sell, lost-found, for-free, favorite, own]
         - name: title
           in: query
           schema:
@@ -204,27 +356,38 @@ paths:
             enum: [male, female]
         - name: age
           in: query
-          description: Full years. Can be used like "age=1&age=2" or like "age=1,2"
+          description: >
+            Can be used like `age=0&age=1` or like `age=0,1`.
+            Option 0: less than 1 year old.
+            Option 1: one year old.
+            Option 2: two years and older.
           schema:
             type: array
             items: 
               type: integer
+              minimum: 0
+              maximum: 2
         - name: favorite
           in: query
+          description: If category = favorite, parameter `favorite` is forbidden
           schema:
             type: boolean
         - name: own
           in: query
+          description: If category = own, parameter `own` is forbidden
           schema:
             type: boolean
         - name: page
           in: query
           schema:
-            type: number
+            type: integer
+            minimum: 1
         - name: limit
           in: query
           schema: 
-            type: number
+            type: integer
+            minimum: 1
+            maximum: 100
         
       responses:
         '200':
@@ -235,13 +398,13 @@ paths:
                 type: object
                 properties:
                   totalResults:
-                    type: number
+                    type: integer
                     example: 1
                   page:
-                    type: number
+                    type: integer
                     example: 1
                   totalPages:
-                    type: number
+                    type: integer
                     example: 1
                   results:
                     type: array
@@ -251,6 +414,7 @@ paths:
       operationId: addNotice
       tags: [Notices]
       summary: Add new notice
+      description: Add a notice to notices collection
       security:
         - BearerAuth: []
       requestBody:
@@ -261,6 +425,18 @@ paths:
       responses:
         '201':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notice'
+          links:
+            GetNoticeById:
+              operationId: getNoticeById
+              description: >
+                The `_id` value returned in the response can be used as
+                the `noticeId` parameter in `GET api/notices/{noticeId}`.
+              parameters:
+                noticeId: '$response.body#/_id'
         '400':
           $ref: '#/components/responses/ValidationError'
         '401':
@@ -281,6 +457,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoticeWithOwner'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':
@@ -406,11 +586,11 @@ paths:
       - name: page
         in: query
         schema:
-          type: number
+          type: integer
       - name: limit
         in: query
         schema: 
-          type: number
+          type: integer
       responses:
         '200': 
           description: Data successfully retrieved
@@ -420,13 +600,13 @@ paths:
                 type: object
                 properties:
                   totalResults:
-                    type: number
+                    type: integer
                     example: 1
                   page:
-                    type: number
+                    type: integer
                     example: 1
                   totalPages:
-                    type: number
+                    type: integer
                     example: 1
                   results:
                     type: array
@@ -563,7 +743,12 @@ components:
     LoginResponse:
       type: object
       properties:
-        token:
+        accessToken:
+          type: string
+          format: jwt
+          description: Authorization token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDRlOGM1NjIzOTljNTAwMTRiMjljYmIiLCJpYXQiOjE2ODI4NjkzMzR9.XfBVz0mlvLZOS8xnz52-yvpT4jEh-TWapes-jr9fgIc
+        refreshToken:
           type: string
           format: jwt
           description: Authorization token
@@ -571,7 +756,8 @@ components:
         user:
           $ref: '#/components/schemas/UserInfo'
       required: 
-        - token
+        - accessToken
+        - refreshToken
         - user
     Notice:
       type: object
@@ -634,7 +820,24 @@ components:
         comments: Rich would be the perfect addition to an active family that loves to play and go on walks. I bet he would love having a doggy playmate too! 
         favorite: true
         own: false
-        promo: 2
+    NoticeWithOwner:
+      allOf:
+        - $ref: '#/components/schemas/Notice'
+        - type: object
+          properties:
+            owner:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+          example:
+            owner:
+              email: user@mail.com
+              phone: '+380664123214'
+            
     Pet:
       type: object
       properties:
@@ -687,6 +890,7 @@ components:
               password:
                 type: string
                 format: password
+                pattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z])'
                 minLength: 6
                 maxLength: 16
                 description: User password. The password must contain at least 1 uppercase letter, 1 lowercase letter and 1 digit.
@@ -702,7 +906,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'   
+            $ref: '#/components/schemas/Error'
           example: 
             message: 'Validation error message'
     UnauthorizedError:
@@ -721,6 +925,12 @@ components:
             $ref: '#/components/schemas/Error'
           example:
             message: Not found
+  links:
+    RefreshTokens:
+      operationId: refreshTokens
+      description: The `refreshToken` returned in the response is used in requestBody in `POST /api/users/refresh`
+      requestBody:
+        refreshToken: '$response.body#/refreshToken'
   securitySchemes:
     BearerAuth:
       type: http
