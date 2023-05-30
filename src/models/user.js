@@ -56,6 +56,14 @@ const usersSchema = new Schema(
       type: String,
       default: '',
     },
+    otp: {
+      type: String,
+      default: '',
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { versionKey: false, timestamps: true }
 );

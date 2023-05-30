@@ -106,6 +106,7 @@ const updateCurrent = async (req, res) => {
     if (existedUser) {
       throw new HttpError(409, 'Email in use');
     }
+    body.verified = false;
   }
 
   const oldAvatarUrl = req.user.avatarUrl;
@@ -161,6 +162,7 @@ const selectDetailedUserInfo = user => ({
   phone: user.phone,
   avatarUrl: user.avatarUrl,
   balance: user.balance,
+  verified: user.verified,
 });
 
 const setUserToken = async (userId, accessToken, refreshToken) =>
