@@ -2,13 +2,15 @@ const { Schema, model } = require('mongoose');
 const Joi = require('joi');
 const handleMongooseError = require('../helpers/handleMongooseError');
 
+const { BASE_URL } = process.env;
+
 const PASSWORD_MIN_LENGTH = 6;
 const PASSWORD_MAX_LENGTH = 16;
 const NAME_LENGTH = 32;
 const PHONE_LENGTH = 20;
 const PHONE_PATTERN = /^\+\d{12}$/;
 const PHONE_PATTERN_MESSAGE = 'Phone must start with + and contain 12 digits';
-const DEFAULT_AVATAR_URL = `${process.env.BASE_URL}/avatars/avatar.jpg`;
+const DEFAULT_AVATAR_URL = `${BASE_URL}/avatars/avatar.jpg`;
 const NEW_BALANCE_VALUE = 50;
 
 // Mongoose schema:
@@ -46,7 +48,7 @@ const usersSchema = new Schema(
     },
     balance: {
       type: Number,
-      default: NEW_BALANCE_VALUE,
+      default: 0,
     },
     accessToken: {
       type: String,
@@ -55,6 +57,14 @@ const usersSchema = new Schema(
     refreshToken: {
       type: String,
       default: '',
+    },
+    otp: {
+      type: String,
+      default: '',
+    },
+    verified: {
+      type: Boolean,
+      default: false,
     },
   },
   { versionKey: false, timestamps: true }
@@ -80,6 +90,7 @@ const registerParams = Joi.object({
     .pattern(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/)
     .messages({ 'any.required': 'missing required "password" field' }),
   confirmPassword: Joi.string().valid(Joi.ref('password')).strip(),
+  lang: Joi.string().valid('ukr', 'en').default('en'),
 });
 
 const loginParams = Joi.object({
@@ -100,7 +111,7 @@ const refreshParams = Joi.object({
 
 const updateParams = Joi.object({
   name: Joi.string().trim().max(NAME_LENGTH),
-  email: Joi.string().trim().lowercase().email().trim(),
+  email: Joi.string().trim().lowercase().email(),
   birthday: Joi.date().iso().less('now'),
   city: Joi.string(),
   phone: Joi.string().trim().max(PHONE_LENGTH).pattern(PHONE_PATTERN).messages({
@@ -109,6 +120,16 @@ const updateParams = Joi.object({
 });
 // .min(1)
 // .messages({ 'object.min': 'missing fields' });
+
+const requestVerificationParams = Joi.object({
+  email: Joi.string().trim().lowercase().email().required(),
+  lang: Joi.string().valid('ukr', 'en').default('en'),
+});
+
+const verifyParams = Joi.object({
+  verificationToken: Joi.string().required(),
+  otp: Joi.string().trim().required(),
+});
 
 const avatarConfig = {
   field: 'avatar',
@@ -122,10 +143,13 @@ const schemas = {
   refreshParams,
   updateParams,
   avatarConfig,
+  requestVerificationParams,
+  verifyParams,
 };
 
 const constants = {
   DEFAULT_AVATAR_URL,
+  NEW_BALANCE_VALUE,
 };
 
 module.exports = {

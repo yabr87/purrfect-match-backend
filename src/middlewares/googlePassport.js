@@ -5,12 +5,12 @@ const crypto = require('crypto');
 
 const { User, constants } = require('../models/user');
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL, PORT } = process.env;
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, BASE_URL } = process.env;
 
 const googleParams = {
   clientID: GOOGLE_CLIENT_ID,
   clientSecret: GOOGLE_CLIENT_SECRET,
-  callbackURL: `${BASE_URL}:${PORT}/api/users/google/callback`,
+  callbackURL: `${BASE_URL}/api/users/google/callback`,
   passReqToCallback: true,
 };
 
@@ -26,6 +26,7 @@ const googleCallback = async (
       email,
       displayName: name = 'User',
       picture: avatarUrl = constants.DEFAULT_AVATAR_URL,
+      email_verified: verified,
     } = profile;
     const user = await User.findOne({ email });
     if (user) {
@@ -41,6 +42,8 @@ const googleCallback = async (
         password,
         avatarUrl,
         name,
+        verified,
+        balance: verified ? constants.NEW_BALANCE_VALUE : 0,
       })
     ).toObject();
     newUser.isNewUser = true;
