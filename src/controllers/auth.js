@@ -241,7 +241,10 @@ const verifyOtp = async ({ verificationToken, otp }) => {
   }
 
   user.verified = true;
-  user.balance += constants.NEW_BALANCE_VALUE;
+  if (!user.onceVerified) {
+    user.onceVerified = true;
+    user.balance += constants.NEW_BALANCE_VALUE;
+  }
   const { verified } = await user.save();
   return verified;
 };

@@ -42,6 +42,7 @@ const googleCallback = async (
         password,
         avatarUrl,
         name,
+        onceVerified: verified,
         verified,
         balance: verified ? constants.NEW_BALANCE_VALUE : 0,
       })
